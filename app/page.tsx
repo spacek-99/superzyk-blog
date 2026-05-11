@@ -2,56 +2,50 @@
 
 import { useState } from "react";
 
-const posts = [
-  {
-    category: "AI Engineering",
-    title: "把 AI 工具放进日常开发工作流",
-    summary:
-      "记录从 prompt、代码审查到自动化脚本的实践，把模型当成可靠的工程伙伴，而不是一次性的玩具。",
-    date: "2026.05",
-    readTime: "6 min",
-  },
-  {
-    category: "Homelab",
-    title: "一台小主机的长期主义",
-    summary:
-      "从存储、备份、监控到内网服务，把家庭实验室做成可维护、可恢复、可迁移的个人基础设施。",
-    date: "2026.04",
-    readTime: "8 min",
-  },
-  {
-    category: "Network Notes",
-    title: "网络折腾笔记：从能通到可观测",
-    summary:
-      "把代理、DNS、隧道和防火墙策略写清楚，少一点玄学，多一点可复现的排障路径。",
-    date: "2026.03",
-    readTime: "5 min",
-  },
-];
-
-const projects = [
-  {
-    name: "Homelab Console",
-    description: "个人服务器、容器、备份和监控的实践入口。",
-    tags: ["Linux", "Docker", "Observability"],
-  },
-  {
-    name: "AI Playground",
-    description: "试验模型、Agent、RAG 和开发自动化的轻量实验场。",
-    tags: ["LLM", "Agent", "TypeScript"],
-  },
-  {
-    name: "Network Fieldnotes",
-    description: "网络配置、路由策略、DNS 和远程访问方案的备忘录。",
-    tags: ["DNS", "Proxy", "Zero Trust"],
-  },
-];
-
 const navItems = [
   { label: "首页", href: "#" },
-  { label: "文章", href: "#writing" },
-  { label: "项目", href: "#projects" },
+  { label: "主题", href: "#topics" },
+  { label: "实验室", href: "#lab" },
   { label: "关于", href: "#about" },
+];
+
+const labMetrics = [
+  { label: "Writing", value: "12", hint: "drafts" },
+  { label: "Lab Notes", value: "28", hint: "logs" },
+  { label: "Uptime", value: "steady", hint: "public status" },
+];
+
+const labActivity = [
+  "整理 AI 开发工作流",
+  "重构博客视觉系统",
+  "归档网络排障笔记",
+];
+
+const topicCards = [
+  {
+    title: "AI 实践笔记",
+    eyebrow: "AI Workflow",
+    description: "记录模型辅助开发、提示词实验、Agent 工作流和代码审查中的真实收益与边界。",
+    accent: "from-violet-200 to-fuchsia-100",
+  },
+  {
+    title: "网站搭建日志",
+    eyebrow: "Web Build",
+    description: "从 Next.js、样式系统、部署流程到性能优化，把站点演进过程写成可复用的经验。",
+    accent: "from-sky-200 to-cyan-100",
+  },
+  {
+    title: "Homelab 实验室",
+    eyebrow: "Home Infrastructure",
+    description: "关注家庭实验室的服务编排、备份策略、监控告警和长期维护，不暴露内部细节。",
+    accent: "from-emerald-200 to-teal-100",
+  },
+  {
+    title: "工具与模板",
+    eyebrow: "Tools & Templates",
+    description: "沉淀脚本、清单、模板和小工具，让重复工作变得更轻，折腾也更容易复盘。",
+    accent: "from-amber-200 to-orange-100",
+  },
 ];
 
 function cn(...classes: string[]) {
@@ -59,38 +53,48 @@ function cn(...classes: string[]) {
 }
 
 export default function Home() {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
 
   const theme = {
-    page: isDark ? "bg-[#05070a] text-[#f4f7fb]" : "bg-[#f6f8fb] text-[#101827]",
+    page: isDark
+      ? "bg-[#070910] text-[#f6f7fb]"
+      : "bg-[#fbf4e8] text-[#201a24]",
     ambient: isDark
-      ? "bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_32rem),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.14),transparent_28rem),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_18rem)]"
-      : "bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.18),transparent_32rem),radial-gradient(circle_at_80%_20%,rgba(16,185,129,0.14),transparent_28rem),linear-gradient(180deg,rgba(255,255,255,0.95),transparent_18rem)]",
+      ? "bg-[radial-gradient(circle_at_18%_10%,rgba(125,92,255,0.22),transparent_28rem),radial-gradient(circle_at_82%_20%,rgba(34,211,238,0.16),transparent_30rem),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_34rem)]"
+      : "bg-[radial-gradient(circle_at_12%_8%,rgba(216,180,254,0.48),transparent_28rem),radial-gradient(circle_at_82%_14%,rgba(251,207,232,0.52),transparent_26rem),radial-gradient(circle_at_50%_78%,rgba(254,243,199,0.86),transparent_34rem)]",
     header: isDark
-      ? "border-white/10 bg-[#05070a]/80"
-      : "border-slate-900/10 bg-[#f6f8fb]/85",
-    brand: isDark ? "text-cyan-200" : "text-sky-700",
-    navText: isDark ? "text-zinc-400" : "text-slate-600",
-    navHover: isDark ? "hover:text-zinc-50" : "hover:text-slate-950",
-    title: isDark ? "text-zinc-50" : "text-slate-950",
-    body: isDark ? "text-zinc-300" : "text-slate-700",
-    soft: isDark ? "text-zinc-400" : "text-slate-600",
-    muted: isDark ? "text-zinc-500" : "text-slate-500",
-    accent: isDark ? "text-cyan-200" : "text-sky-700",
-    divider: isDark ? "border-white/10" : "border-slate-900/10",
-    panel: isDark
-      ? "border-white/10 bg-white/[0.03] shadow-cyan-950/30"
-      : "border-slate-900/10 bg-white/75 shadow-slate-300/50",
-    panelHover: isDark
-      ? "border-white/10 bg-white/[0.025] hover:border-cyan-200/40 hover:bg-white/[0.05]"
-      : "border-slate-900/10 bg-white/80 hover:border-sky-400/50 hover:bg-white",
+      ? "border-white/10 bg-[#070910]/78"
+      : "border-[#eadfce] bg-[#fbf4e8]/78",
+    brand: isDark ? "text-cyan-100" : "text-[#6d4fb6]",
+    navText: isDark ? "text-zinc-400" : "text-[#746779]",
+    navHover: isDark ? "hover:text-white" : "hover:text-[#201a24]",
+    title: isDark ? "text-white" : "text-[#201a24]",
+    body: isDark ? "text-zinc-300" : "text-[#665d68]",
+    muted: isDark ? "text-zinc-500" : "text-[#8a7d8f]",
+    accent: isDark ? "text-cyan-200" : "text-[#8b5cf6]",
+    divider: isDark ? "border-white/10" : "border-[#eadfce]",
+    glass: isDark
+      ? "border-white/10 bg-white/[0.05] shadow-2xl shadow-cyan-950/25"
+      : "border-white/70 bg-white/[0.62] shadow-2xl shadow-[#d8b4fe]/20",
+    softCard: isDark
+      ? "border-white/10 bg-white/[0.045] shadow-xl shadow-black/20"
+      : "border-white/75 bg-white/[0.68] shadow-xl shadow-[#d9c4ae]/[0.22]",
+    pill: isDark
+      ? "border-white/[0.12] bg-white/[0.06] text-zinc-200"
+      : "border-white/80 bg-white/[0.62] text-[#675072]",
     primaryButton: isDark
-      ? "bg-cyan-200 text-zinc-950 hover:bg-cyan-100"
-      : "bg-slate-950 text-white hover:bg-slate-800",
-    outlineButton: isDark
-      ? "border-white/15 text-zinc-100 hover:border-cyan-200/70 hover:bg-white/5"
-      : "border-slate-900/15 text-slate-800 hover:border-sky-500/60 hover:bg-sky-100/60",
-    tag: isDark ? "border-white/10 text-zinc-400" : "border-slate-900/10 text-slate-600",
+      ? "bg-cyan-200 text-slate-950 hover:bg-cyan-100"
+      : "bg-[#201a24] text-white hover:bg-[#3a2d41]",
+    secondaryButton: isDark
+      ? "border-white/15 bg-white/[0.04] text-zinc-100 hover:border-cyan-200/60 hover:bg-white/[0.08]"
+      : "border-[#e4d4c3] bg-white/55 text-[#433746] hover:border-[#c8a5ff] hover:bg-white/82",
+    switchTrack: isDark
+      ? "border-cyan-300/30 bg-slate-950"
+      : "border-[#dec8ff] bg-[#fff8ef]",
+    switchKnob: isDark ? "translate-x-0 bg-cyan-200" : "translate-x-8 bg-[#8b5cf6]",
+    github: isDark
+      ? "border-cyan-300/30 text-cyan-100 hover:border-cyan-200 hover:bg-cyan-300/10"
+      : "border-[#ddc9ff] text-[#6d4fb6] hover:border-[#b790ff] hover:bg-white/70",
   };
 
   return (
@@ -101,24 +105,31 @@ export default function Home() {
           theme.ambient,
         )}
       />
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 sm:px-8 lg:px-10">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 sm:px-8 lg:px-10">
         <header
           className={cn(
-            "sticky top-0 z-20 -mx-5 border-b px-5 backdrop-blur-xl transition-colors duration-500 sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10",
+            "sticky top-0 z-20 -mx-5 border-b px-5 backdrop-blur-2xl transition-colors duration-500 sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10",
             theme.header,
           )}
         >
-          <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between">
+          <nav className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between">
             <a
               href="#"
-              className={cn("font-mono text-sm font-semibold tracking-[0.22em]", theme.brand)}
+              className={cn(
+                "rounded-full px-4 py-2 font-mono text-sm font-semibold tracking-[0.18em] transition",
+                theme.brand,
+              )}
             >
               superzyk.com
             </a>
-            <div className={cn("flex items-center gap-4 text-sm sm:gap-7", theme.navText)}>
-              <div className="hidden items-center gap-7 sm:flex">
+            <div className={cn("flex items-center gap-3 text-sm sm:gap-5", theme.navText)}>
+              <div className="hidden items-center gap-5 sm:flex">
                 {navItems.map((item) => (
-                  <a key={item.label} href={item.href} className={cn("transition", theme.navHover)}>
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className={cn("rounded-full px-3 py-2 transition", theme.navHover)}
+                  >
                     {item.label}
                   </a>
                 ))}
@@ -129,13 +140,13 @@ export default function Home() {
                 aria-pressed={!isDark}
                 onClick={() => setIsDark((current) => !current)}
                 className={cn(
-                  "relative h-8 w-16 rounded-full border p-1 transition-colors",
-                  isDark ? "border-cyan-300/30 bg-slate-950" : "border-sky-300/70 bg-sky-100",
+                  "relative h-9 w-[4.25rem] rounded-full border p-1 transition-colors",
+                  theme.switchTrack,
                 )}
               >
                 <span
                   className={cn(
-                    "absolute left-2 top-1/2 -translate-y-1/2 text-xs transition-opacity",
+                    "absolute left-2.5 top-1/2 -translate-y-1/2 text-xs transition-opacity",
                     isDark ? "opacity-100" : "opacity-35",
                   )}
                 >
@@ -143,7 +154,7 @@ export default function Home() {
                 </span>
                 <span
                   className={cn(
-                    "absolute right-2 top-1/2 -translate-y-1/2 text-xs transition-opacity",
+                    "absolute right-2.5 top-1/2 -translate-y-1/2 text-xs transition-opacity",
                     isDark ? "opacity-35" : "opacity-100",
                   )}
                 >
@@ -151,8 +162,8 @@ export default function Home() {
                 </span>
                 <span
                   className={cn(
-                    "relative block h-6 w-6 rounded-full shadow-lg transition-transform duration-300",
-                    isDark ? "translate-x-0 bg-cyan-200" : "translate-x-8 bg-white",
+                    "relative block h-7 w-7 rounded-full shadow-lg transition-transform duration-300",
+                    theme.switchKnob,
                   )}
                 />
               </button>
@@ -162,9 +173,7 @@ export default function Home() {
                 rel="noreferrer"
                 className={cn(
                   "hidden rounded-full border px-4 py-2 font-medium transition sm:inline-flex",
-                  isDark
-                    ? "border-cyan-300/30 text-cyan-100 hover:border-cyan-200 hover:bg-cyan-300/10"
-                    : "border-sky-300/70 text-sky-800 hover:border-sky-500 hover:bg-sky-100",
+                  theme.github,
                 )}
               >
                 GitHub
@@ -173,173 +182,217 @@ export default function Home() {
           </nav>
         </header>
 
-        <section className="grid flex-1 items-center gap-12 py-20 sm:py-24 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
+        <section className="grid flex-1 items-center gap-10 py-14 sm:py-[4.5rem] lg:grid-cols-[0.95fr_1.05fr] lg:gap-12 lg:py-[5.5rem]">
           <div>
-            <p
-              className={cn(
-                "mb-5 font-mono text-xs font-semibold uppercase tracking-[0.3em]",
-                theme.accent,
-              )}
-            >
-              AI · Dev · Homelab · Network
-            </p>
+            <div className={cn("mb-6 inline-flex rounded-full border px-4 py-2 text-sm", theme.pill)}>
+              AI · Web · Homelab · Personal OS
+            </div>
             <h1
               className={cn(
-                "max-w-4xl text-5xl font-semibold leading-tight tracking-normal sm:text-6xl lg:text-7xl",
+                "max-w-4xl text-5xl font-semibold leading-[1.04] tracking-normal sm:text-6xl lg:text-7xl",
                 theme.title,
               )}
             >
-              在个人基础设施里，长期折腾一点有用的东西。
+              把技术折腾，整理成温柔可用的个人实验室。
             </h1>
-            <p className={cn("mt-7 max-w-2xl text-lg leading-8", theme.body)}>
-              这里是 superzyk 的技术博客，记录 AI 工程、开发工具、家庭实验室、网络方案和一些从踩坑里长出来的判断。
+            <p className={cn("mt-6 max-w-2xl text-lg leading-8 sm:text-xl", theme.body)}>
+              superzyk.com 记录 AI 实践、网站搭建、Homelab 和工具模板。少一点炫技，多一点能复盘、能迁移、能长期维护的经验。
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
-                href="#writing"
+                href="#topics"
                 className={cn(
-                  "inline-flex h-12 items-center justify-center rounded-md px-5 text-sm font-semibold transition",
+                  "inline-flex h-[3.25rem] items-center justify-center rounded-full px-6 text-sm font-semibold shadow-lg transition hover:-translate-y-0.5",
+                  isDark ? "shadow-cyan-950/35" : "shadow-[#cab3a1]/28",
                   theme.primaryButton,
                 )}
               >
-                阅读最新文章
+                浏览主题
               </a>
               <a
-                href="#projects"
+                href="#lab"
                 className={cn(
-                  "inline-flex h-12 items-center justify-center rounded-md border px-5 text-sm font-semibold transition",
-                  theme.outlineButton,
+                  "inline-flex h-[3.25rem] items-center justify-center rounded-full border px-6 text-sm font-semibold transition hover:-translate-y-0.5",
+                  theme.secondaryButton,
                 )}
               >
-                查看项目入口
+                查看 Lab Dashboard
               </a>
             </div>
           </div>
 
-          <aside
+          <section
+            id="lab"
+            aria-label="SuperZyk Lab Dashboard"
             className={cn(
-              "border p-6 shadow-2xl backdrop-blur transition-colors duration-500",
-              theme.panel,
+              "rounded-[2rem] border p-4 shadow-2xl backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 sm:p-5",
+              theme.glass,
             )}
           >
-            <div className={cn("flex items-center justify-between border-b pb-5", theme.divider)}>
-              <span className={cn("font-mono text-xs uppercase tracking-[0.25em]", theme.muted)}>
-                Status
-              </span>
-              <span className="rounded-full bg-emerald-300/10 px-3 py-1 text-xs font-medium text-emerald-500">
-                online
-              </span>
-            </div>
-            <dl className="mt-6 space-y-5">
-              <div>
-                <dt className={cn("text-sm", theme.muted)}>当前关注</dt>
-                <dd className={cn("mt-1 text-xl font-semibold", theme.title)}>
-                  AI coding workflow
-                </dd>
-              </div>
-              <div>
-                <dt className={cn("text-sm", theme.muted)}>基础设施</dt>
-                <dd className={cn("mt-1 text-xl font-semibold", theme.title)}>
-                  Homelab / NAS / Observability
-                </dd>
-              </div>
-              <div>
-                <dt className={cn("text-sm", theme.muted)}>写作目标</dt>
-                <dd className={cn("mt-1 text-xl font-semibold", theme.title)}>
-                  把经验写成可复现的路径
-                </dd>
-              </div>
-            </dl>
-          </aside>
-        </section>
-
-        <section id="about" className={cn("border-t py-16", theme.divider)}>
-          <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
-            <div>
-              <p className={cn("font-mono text-xs uppercase tracking-[0.25em]", theme.accent)}>
-                About
-              </p>
-              <h2 className={cn("mt-3 text-3xl font-semibold", theme.title)}>个人介绍</h2>
-            </div>
-            <p className={cn("max-w-3xl text-lg leading-8", theme.body)}>
-              我关注能真正落地的技术：让 AI 进入开发流程，让服务运行得更稳，让网络路径更清楚，也让个人知识库持续积累。这个站点会少一点口号，多一点配置、代码、复盘和长期维护经验。
-            </p>
-          </div>
-        </section>
-
-        <section id="writing" className={cn("border-t py-16", theme.divider)}>
-          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className={cn("font-mono text-xs uppercase tracking-[0.25em]", theme.accent)}>
-                Writing
-              </p>
-              <h2 className={cn("mt-3 text-3xl font-semibold", theme.title)}>文章预览</h2>
-            </div>
-            <p className={cn("max-w-md text-sm leading-6", theme.muted)}>
-              先放一些主题方向，后续可以接入真实文章、MDX 或 CMS。
-            </p>
-          </div>
-          <div className="grid gap-4">
-            {posts.map((post) => (
-              <article
-                key={post.title}
-                className={cn("group border p-6 transition", theme.panelHover)}
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p
-                    className={cn(
-                      "font-mono text-xs uppercase tracking-[0.2em]",
-                      theme.accent,
-                    )}
-                  >
-                    {post.category}
-                  </p>
-                  <p className={cn("text-sm", theme.muted)}>
-                    {post.date} · {post.readTime}
-                  </p>
+            <div className={cn("rounded-[1.5rem] border p-5", theme.softCard)}>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className={cn("text-sm font-medium", theme.muted)}>SuperZyk Lab</p>
+                  <h2 className={cn("mt-1 text-2xl font-semibold", theme.title)}>Dashboard</h2>
                 </div>
-                <h3
+                <span
                   className={cn(
-                    "mt-4 text-2xl font-semibold transition",
-                    theme.title,
-                    isDark ? "group-hover:text-cyan-100" : "group-hover:text-sky-700",
+                    "rounded-full border px-3 py-1 text-xs font-semibold",
+                    isDark
+                      ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200"
+                      : "border-emerald-200 bg-emerald-50 text-emerald-700",
                   )}
                 >
-                  {post.title}
-                </h3>
-                <p className={cn("mt-3 max-w-3xl leading-7", theme.soft)}>{post.summary}</p>
+                  Public Snapshot
+                </span>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {labMetrics.map((metric) => (
+                  <div
+                    key={metric.label}
+                    className={cn(
+                      "rounded-3xl border p-4 transition hover:-translate-y-0.5",
+                      isDark ? "border-white/10 bg-black/[0.16]" : "border-[#efe3d7] bg-[#fffaf2]/80",
+                    )}
+                  >
+                    <p className={cn("text-xs font-medium", theme.muted)}>{metric.label}</p>
+                    <p className={cn("mt-2 text-2xl font-semibold", theme.title)}>{metric.value}</p>
+                    <p className={cn("mt-1 text-xs", theme.muted)}>{metric.hint}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_0.78fr]">
+                <div
+                  className={cn(
+                    "rounded-3xl border p-4",
+                    isDark ? "border-white/10 bg-black/[0.16]" : "border-[#efe3d7] bg-[#fffaf2]/80",
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className={cn("text-sm font-semibold", theme.title)}>Focus Flow</p>
+                    <p className={cn("font-mono text-xs", theme.muted)}>this week</p>
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    {[
+                      ["AI Notes", "78%"],
+                      ["Web Build", "62%"],
+                      ["Lab Review", "46%"],
+                    ].map(([label, width]) => (
+                      <div key={label}>
+                        <div className="mb-2 flex justify-between text-xs">
+                          <span className={theme.body}>{label}</span>
+                          <span className={theme.muted}>{width}</span>
+                        </div>
+                        <div
+                          className={cn(
+                            "h-2 overflow-hidden rounded-full",
+                            isDark ? "bg-white/10" : "bg-[#eadfce]",
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "h-full rounded-full",
+                              isDark
+                                ? "bg-gradient-to-r from-cyan-200 to-violet-300"
+                                : "bg-gradient-to-r from-[#a78bfa] to-[#f0abfc]",
+                            )}
+                            style={{ width }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className={cn(
+                    "rounded-3xl border p-4",
+                    isDark ? "border-white/10 bg-black/[0.16]" : "border-[#efe3d7] bg-[#fffaf2]/80",
+                  )}
+                >
+                  <p className={cn("text-sm font-semibold", theme.title)}>Activity</p>
+                  <div className="mt-4 space-y-3">
+                    {labActivity.map((item) => (
+                      <div key={item} className="flex gap-3">
+                        <span
+                          className={cn(
+                            "mt-1 h-2 w-2 shrink-0 rounded-full",
+                            isDark ? "bg-cyan-200" : "bg-[#a78bfa]",
+                          )}
+                        />
+                        <p className={cn("text-sm leading-6", theme.body)}>{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section id="topics" className={cn("border-t py-16 sm:py-20", theme.divider)}>
+          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className={cn("font-mono text-xs uppercase tracking-[0.24em]", theme.accent)}>
+                Topics
+              </p>
+              <h2 className={cn("mt-3 text-3xl font-semibold sm:text-4xl", theme.title)}>
+                四个长期主题
+              </h2>
+            </div>
+            <p className={cn("max-w-xl text-sm leading-6", theme.body)}>
+              每个入口都偏向可执行的记录：配置怎么想、问题怎么拆、工具怎么留下来。
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {topicCards.map((card) => (
+              <article
+                key={card.title}
+                className={cn(
+                  "group rounded-[1.75rem] border p-5 transition duration-300 hover:-translate-y-1",
+                  theme.softCard,
+                )}
+              >
+                <div className={cn("mb-5 h-2 w-20 rounded-full bg-gradient-to-r", card.accent)} />
+                <p className={cn("font-mono text-xs uppercase tracking-[0.2em]", theme.accent)}>
+                  {card.eyebrow}
+                </p>
+                <h3 className={cn("mt-4 text-2xl font-semibold", theme.title)}>{card.title}</h3>
+                <p className={cn("mt-4 leading-7", theme.body)}>{card.description}</p>
+                <div
+                  className={cn(
+                    "mt-6 inline-flex rounded-full border px-3 py-1 text-xs font-medium transition group-hover:translate-x-1",
+                    theme.pill,
+                  )}
+                >
+                  准备展开
+                </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section id="projects" className={cn("border-t py-16", theme.divider)}>
-          <div className="mb-8">
-            <p className={cn("font-mono text-xs uppercase tracking-[0.25em]", theme.accent)}>
-              Projects
+        <section id="about" className={cn("border-t py-14", theme.divider)}>
+          <div
+            className={cn(
+              "rounded-[2rem] border p-6 transition-colors duration-500 sm:p-8",
+              theme.glass,
+            )}
+          >
+            <p className={cn("font-mono text-xs uppercase tracking-[0.24em]", theme.accent)}>
+              About
             </p>
-            <h2 className={cn("mt-3 text-3xl font-semibold", theme.title)}>项目入口</h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {projects.map((project) => (
-              <article
-                key={project.name}
-                className={cn("border p-6 transition-colors duration-500", theme.panel)}
-              >
-                <h3 className={cn("text-xl font-semibold", theme.title)}>{project.name}</h3>
-                <p className={cn("mt-3 leading-7", theme.soft)}>{project.description}</p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className={cn("rounded-full border px-3 py-1 font-mono text-xs", theme.tag)}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </article>
-            ))}
+            <div className="mt-4 grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+              <h2 className={cn("text-3xl font-semibold sm:text-4xl", theme.title)}>
+                写给未来自己的技术备忘录。
+              </h2>
+              <p className={cn("text-lg leading-8", theme.body)}>
+                这里不会记录敏感的内部地址、端口或私有路径，只保留可公开分享的思路、抽象方案和踩坑复盘。目标是让每一次折腾，都能变成下一次更轻松的起点。
+              </p>
+            </div>
           </div>
         </section>
 
@@ -352,7 +405,7 @@ export default function Home() {
               rel="noreferrer"
               className={cn(
                 "transition",
-                isDark ? "text-zinc-400 hover:text-cyan-100" : "text-slate-600 hover:text-sky-700",
+                isDark ? "text-zinc-400 hover:text-cyan-100" : "text-[#6d4fb6] hover:text-[#201a24]",
               )}
             >
               GitHub / spacek-99
