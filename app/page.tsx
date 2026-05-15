@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
+import { useTheme } from "@/components/ThemeProvider";
+import Link from "next/link";
 
 const navItems = [
   { label: "首页", href: "#" },
   { label: "主题", href: "#topics" },
+  { label: "作品资料", href: "/posts" },
   { label: "实验室", href: "#lab" },
   { label: "关于", href: "#about" },
 ];
@@ -53,7 +56,7 @@ function cn(...classes: string[]) {
 }
 
 export default function Home() {
-  const [isDark, setIsDark] = useState(false);
+  const { isDark } = useTheme();
 
   const theme = {
     page: isDark
@@ -88,10 +91,6 @@ export default function Home() {
     secondaryButton: isDark
       ? "border-white/15 bg-white/[0.04] text-zinc-100 hover:border-cyan-200/60 hover:bg-white/[0.08]"
       : "border-[#e4d4c3] bg-white/55 text-[#433746] hover:border-[#c8a5ff] hover:bg-white/82",
-    switchTrack: isDark
-      ? "border-cyan-300/30 bg-slate-950"
-      : "border-[#dec8ff] bg-[#fff8ef]",
-    switchKnob: isDark ? "translate-x-0 bg-cyan-200" : "translate-x-8 bg-[#8b5cf6]",
     github: isDark
       ? "border-cyan-300/30 text-cyan-100 hover:border-cyan-200 hover:bg-cyan-300/10"
       : "border-[#ddc9ff] text-[#6d4fb6] hover:border-[#b790ff] hover:bg-white/70",
@@ -124,49 +123,27 @@ export default function Home() {
             </a>
             <div className={cn("flex items-center gap-3 text-sm sm:gap-5", theme.navText)}>
               <div className="hidden items-center gap-5 sm:flex">
-                {navItems.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className={cn("rounded-full px-3 py-2 transition", theme.navHover)}
-                  >
-                    {item.label}
-                  </a>
-                ))}
-              </div>
-              <button
-                type="button"
-                aria-label={isDark ? "切换到白天模式" : "切换到黑夜模式"}
-                aria-pressed={!isDark}
-                onClick={() => setIsDark((current) => !current)}
-                className={cn(
-                  "relative h-9 w-[4.25rem] rounded-full border p-1 transition-colors",
-                  theme.switchTrack,
+                {navItems.map((item) =>
+                  item.href.startsWith("/") ? (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className={cn("rounded-full px-3 py-2 transition", theme.navHover)}
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      className={cn("rounded-full px-3 py-2 transition", theme.navHover)}
+                    >
+                      {item.label}
+                    </a>
+                  ),
                 )}
-              >
-                <span
-                  className={cn(
-                    "absolute left-2.5 top-1/2 -translate-y-1/2 text-xs transition-opacity",
-                    isDark ? "opacity-100" : "opacity-35",
-                  )}
-                >
-                  夜
-                </span>
-                <span
-                  className={cn(
-                    "absolute right-2.5 top-1/2 -translate-y-1/2 text-xs transition-opacity",
-                    isDark ? "opacity-35" : "opacity-100",
-                  )}
-                >
-                  日
-                </span>
-                <span
-                  className={cn(
-                    "relative block h-7 w-7 rounded-full shadow-lg transition-transform duration-300",
-                    theme.switchKnob,
-                  )}
-                />
-              </button>
+              </div>
+              <ThemeToggle />
               <a
                 href="https://github.com/spacek-99"
                 target="_blank"
@@ -182,27 +159,27 @@ export default function Home() {
           </nav>
         </header>
 
-        <section className="grid flex-1 items-center gap-10 py-14 sm:py-[4.5rem] lg:grid-cols-[0.95fr_1.05fr] lg:gap-12 lg:py-[5.5rem]">
+        <section className="grid flex-1 items-center gap-8 py-10 sm:py-14 lg:grid-cols-[1fr_1.04fr] lg:gap-10 lg:py-16">
           <div>
-            <div className={cn("mb-6 inline-flex rounded-full border px-4 py-2 text-sm", theme.pill)}>
+            <div className={cn("mb-5 inline-flex rounded-full border px-4 py-2 text-sm", theme.pill)}>
               AI · Web · Homelab · Personal OS
             </div>
             <h1
               className={cn(
-                "max-w-4xl text-5xl font-semibold leading-[1.04] tracking-normal sm:text-6xl lg:text-7xl",
+                "max-w-3xl text-4xl font-semibold leading-[1.08] tracking-normal sm:text-5xl lg:text-[3.6rem]",
                 theme.title,
               )}
             >
               把技术折腾，整理成温柔可用的个人实验室。
             </h1>
-            <p className={cn("mt-6 max-w-2xl text-lg leading-8 sm:text-xl", theme.body)}>
+            <p className={cn("mt-5 max-w-2xl text-base leading-7 sm:text-lg", theme.body)}>
               superzyk.com 记录 AI 实践、网站搭建、Homelab 和工具模板。少一点炫技，多一点能复盘、能迁移、能长期维护的经验。
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <a
                 href="#topics"
                 className={cn(
-                  "inline-flex h-[3.25rem] items-center justify-center rounded-full px-6 text-sm font-semibold shadow-lg transition hover:-translate-y-0.5",
+                  "inline-flex h-12 items-center justify-center rounded-full px-5 text-sm font-semibold shadow-lg transition hover:-translate-y-0.5",
                   isDark ? "shadow-cyan-950/35" : "shadow-[#cab3a1]/28",
                   theme.primaryButton,
                 )}
@@ -212,28 +189,53 @@ export default function Home() {
               <a
                 href="#lab"
                 className={cn(
-                  "inline-flex h-[3.25rem] items-center justify-center rounded-full border px-6 text-sm font-semibold transition hover:-translate-y-0.5",
+                  "inline-flex h-12 items-center justify-center rounded-full border px-5 text-sm font-semibold transition hover:-translate-y-0.5",
                   theme.secondaryButton,
                 )}
               >
                 查看 Lab Dashboard
               </a>
             </div>
+            <Link
+              href="/posts/openclaw-2026-install-guide"
+              className={cn(
+                "group mt-6 block max-w-2xl rounded-[1.35rem] border p-4 transition duration-300 hover:-translate-y-1 sm:p-5",
+                theme.softCard,
+              )}
+            >
+              <p className={cn("font-mono text-xs uppercase tracking-[0.2em]", theme.accent)}>
+                作品资料 / Blog
+              </p>
+              <h2 className={cn("mt-2.5 text-xl font-semibold leading-snug sm:text-2xl", theme.title)}>
+                第一篇作品资料：OpenClaw 安装教程
+              </h2>
+              <p className={cn("mt-2.5 text-sm leading-6", theme.body)}>
+                Windows + WSL2 环境下搭建 OpenClaw，覆盖国内镜像源、原生模型 provider、Dashboard 验证和维护流程。
+              </p>
+              <span
+                className={cn(
+                  "mt-4 inline-flex rounded-full border px-3.5 py-2 text-sm font-semibold transition group-hover:translate-x-1",
+                  theme.pill,
+                )}
+              >
+                阅读全文
+              </span>
+            </Link>
           </div>
 
           <section
             id="lab"
             aria-label="SuperZyk Lab Dashboard"
             className={cn(
-              "rounded-[2rem] border p-4 shadow-2xl backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 sm:p-5",
+              "rounded-[1.75rem] border p-4 shadow-2xl backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 sm:p-5",
               theme.glass,
             )}
           >
-            <div className={cn("rounded-[1.5rem] border p-5", theme.softCard)}>
+            <div className={cn("rounded-[1.25rem] border p-5", theme.softCard)}>
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className={cn("text-sm font-medium", theme.muted)}>SuperZyk Lab</p>
-                  <h2 className={cn("mt-1 text-2xl font-semibold", theme.title)}>Dashboard</h2>
+                  <h2 className={cn("mt-1 text-[1.65rem] font-semibold", theme.title)}>Dashboard</h2>
                 </div>
                 <span
                   className={cn(
@@ -247,26 +249,26 @@ export default function Home() {
                 </span>
               </div>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 {labMetrics.map((metric) => (
                   <div
                     key={metric.label}
                     className={cn(
-                      "rounded-3xl border p-4 transition hover:-translate-y-0.5",
+                      "rounded-[1.25rem] border p-3.5 transition hover:-translate-y-0.5",
                       isDark ? "border-white/10 bg-black/[0.16]" : "border-[#efe3d7] bg-[#fffaf2]/80",
                     )}
                   >
                     <p className={cn("text-xs font-medium", theme.muted)}>{metric.label}</p>
-                    <p className={cn("mt-2 text-2xl font-semibold", theme.title)}>{metric.value}</p>
+                    <p className={cn("mt-2 text-xl font-semibold", theme.title)}>{metric.value}</p>
                     <p className={cn("mt-1 text-xs", theme.muted)}>{metric.hint}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_0.78fr]">
+              <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_0.78fr]">
                 <div
                   className={cn(
-                    "rounded-3xl border p-4",
+                    "rounded-[1.25rem] border p-4",
                     isDark ? "border-white/10 bg-black/[0.16]" : "border-[#efe3d7] bg-[#fffaf2]/80",
                   )}
                 >
@@ -274,7 +276,7 @@ export default function Home() {
                     <p className={cn("text-sm font-semibold", theme.title)}>Focus Flow</p>
                     <p className={cn("font-mono text-xs", theme.muted)}>this week</p>
                   </div>
-                  <div className="mt-5 space-y-3">
+                  <div className="mt-4 space-y-3">
                     {[
                       ["AI Notes", "78%"],
                       ["Web Build", "62%"],
@@ -308,7 +310,7 @@ export default function Home() {
 
                 <div
                   className={cn(
-                    "rounded-3xl border p-4",
+                    "rounded-[1.25rem] border p-4",
                     isDark ? "border-white/10 bg-black/[0.16]" : "border-[#efe3d7] bg-[#fffaf2]/80",
                   )}
                 >
