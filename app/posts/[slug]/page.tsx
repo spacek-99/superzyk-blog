@@ -43,9 +43,15 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     openGraph: {
       title: post.title,
       description: post.description,
+      url: `https://superzyk.com/posts/${post.slug}`,
       type: "article",
       publishedTime: post.date,
       tags: post.tags,
+    },
+    twitter: {
+      card: "summary",
+      title: post.title,
+      description: post.description,
     },
   };
 }
@@ -59,10 +65,11 @@ export default async function PostPage({ params }: PostPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--site-bg)] text-[var(--site-ink)] transition-colors duration-300">
-      <div className="mx-auto w-full max-w-[960px] px-5 py-9 sm:px-8 sm:py-12">
+    <main className="min-h-screen overflow-hidden bg-[var(--site-bg)] text-[var(--site-ink)] transition-colors duration-300">
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_12%_0%,rgba(139,92,246,0.16),transparent_28rem),radial-gradient(circle_at_88%_8%,rgba(34,211,238,0.12),transparent_30rem)]" />
+      <div className="relative z-10 mx-auto w-full max-w-[980px] px-5 py-9 sm:px-8 sm:py-12">
         <article className="w-full min-w-0">
-          <header className="border-b border-[var(--site-border)] pb-7">
+          <header className="rounded-[1.4rem] border border-[var(--site-border)] bg-[var(--site-card)] p-5 shadow-2xl shadow-[var(--site-shadow)] backdrop-blur-xl sm:p-7">
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/posts"
@@ -73,26 +80,35 @@ export default async function PostPage({ params }: PostPageProps) {
               <ThemeToggle />
             </div>
             <div className="mt-7 flex flex-wrap items-center gap-2.5 text-sm text-[var(--site-faint)]">
+              <span className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--site-accent)]">
+                Technical Guide
+              </span>
+              <span aria-hidden="true">/</span>
               <time dateTime={post.date}>{formatDate(post.date)}</time>
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-[var(--site-border)] bg-[var(--site-card-strong)] px-2.5 py-1 text-xs text-[var(--site-muted)]"
-                >
-                  {tag}
-                </span>
-              ))}
             </div>
-            <h1 className="mt-5 text-3xl font-semibold leading-tight tracking-normal sm:text-[2.65rem]">
+            <h1 className="mt-5 text-3xl font-semibold leading-tight tracking-normal sm:text-[2.7rem]">
               {post.title}
             </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--site-muted)]">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--site-muted)] sm:text-lg">
               {post.description}
             </p>
+            {post.tags.length > 0 ? (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-[var(--site-border)] bg-[var(--site-card-strong)] px-3 py-1 text-xs font-medium text-[var(--site-muted)]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </header>
 
           <div
             className="article-content mt-8"
+            data-article-content
             dangerouslySetInnerHTML={{ __html: post.contentHtml }}
           />
           <CodeCopyButtons />

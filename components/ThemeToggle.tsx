@@ -15,9 +15,9 @@ export default function ThemeToggle() {
         type="button"
         aria-label="切换主题"
         disabled
-        className="relative h-9 w-[4.25rem] rounded-full border border-[#dec8ff] bg-[#fff8ef] p-1 opacity-70"
+        className="relative h-9 w-[4.25rem] rounded-full border border-cyan-300/30 bg-slate-950 p-1 opacity-70"
       >
-        <span className="relative block h-7 w-7 translate-x-8 rounded-full bg-[#8b5cf6] shadow-lg" />
+        <span className="relative block h-7 w-7 rounded-full bg-cyan-200 shadow-lg" />
       </button>
     );
   }

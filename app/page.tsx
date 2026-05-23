@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const navItems = [
   { label: "首页", href: "/" },
-  { label: "教程", href: "#tutorials" },
+  { label: "教程", href: "#articles" },
   { label: "博客", href: "/posts" },
 ];
 
@@ -22,7 +22,7 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[var(--site-bg)] text-[var(--site-ink)] transition-colors duration-300">
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_12%_8%,rgba(216,180,254,0.42),transparent_28rem),radial-gradient(circle_at_82%_14%,rgba(251,207,232,0.34),transparent_26rem),radial-gradient(circle_at_50%_76%,rgba(254,243,199,0.5),transparent_34rem)] transition-colors duration-300 dark:bg-[radial-gradient(circle_at_18%_10%,rgba(125,92,255,0.2),transparent_28rem),radial-gradient(circle_at_82%_20%,rgba(34,211,238,0.14),transparent_30rem),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_34rem)]" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_12%_8%,rgba(216,180,254,0.34),transparent_28rem),radial-gradient(circle_at_82%_14%,rgba(165,243,252,0.28),transparent_26rem),radial-gradient(circle_at_50%_76%,rgba(254,243,199,0.42),transparent_34rem)] transition-colors duration-300 dark:bg-[radial-gradient(circle_at_18%_10%,rgba(125,92,255,0.2),transparent_28rem),radial-gradient(circle_at_82%_20%,rgba(34,211,238,0.14),transparent_30rem),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_34rem)]" />
 
       <div className="relative z-10 flex min-h-screen w-full flex-col">
         <header className="sticky top-0 z-20 border-b border-[var(--site-border)] bg-[var(--site-bg)]/80 backdrop-blur-2xl transition-colors duration-300">
@@ -72,82 +72,74 @@ export default function Home() {
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <a
-                href="#tutorials"
+                href="#articles"
                 className="inline-flex h-12 items-center justify-center rounded-full bg-[var(--site-button)] px-5 text-sm font-semibold text-[var(--site-button-text)] shadow-lg shadow-[var(--site-shadow)] transition hover:-translate-y-0.5 hover:bg-[var(--site-button-hover)]"
               >
-                查看最新教程
+                进入教程库
               </a>
               <Link
                 href="/posts"
                 className="inline-flex h-12 items-center justify-center rounded-full border border-[var(--site-border)] bg-[var(--site-card)] px-5 text-sm font-semibold text-[var(--site-link)] transition hover:-translate-y-0.5 hover:border-[var(--site-link)] hover:bg-[var(--site-card-strong)]"
               >
-                浏览全部文章
+                查看全部文章
               </Link>
             </div>
           </div>
 
-          <aside className="relative z-10 h-[21rem] overflow-hidden rounded-[2rem] border border-[#eadcc8] bg-white/60 p-6 text-[#241b2f] shadow-[0_24px_70px_rgba(96,70,30,0.14)] backdrop-blur-xl dark:border-white/10 dark:bg-[#100b1f] dark:text-white dark:shadow-2xl dark:shadow-[#4c1d95]/25 sm:h-[23rem] lg:w-full">
+          <aside className="relative z-10 h-[21rem] overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[#100b1f] p-6 text-white shadow-[0_24px_80px_rgba(120,80,40,0.10)] backdrop-blur-xl dark:border-white/10 dark:shadow-2xl dark:shadow-[#4c1d95]/25 sm:h-[23rem] lg:w-full">
             <div className="absolute inset-0 opacity-55 dark:opacity-90">
               <HeroLiquidBackground />
             </div>
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#fffaf2]/80 via-[#f6edff]/50 to-[#e8fbff]/50 dark:bg-gradient-to-b dark:from-black/10 dark:via-black/15 dark:to-black/35" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-black/35" />
 
-            <div className="pointer-events-none relative z-10 flex h-full flex-col">
-              <p className="font-mono text-xs uppercase tracking-[0.24em] text-[#6b6074] dark:text-white/55">
+            <div className="pointer-events-none relative z-10 flex h-full flex-col items-center justify-center text-center">
+              <p className="font-mono text-xs uppercase tracking-[0.28em] text-white/55">
                 SUPERZYK LAB
               </p>
-              <h2 className="mt-10 max-w-sm text-3xl font-semibold leading-tight text-[#241b2f] dark:text-white sm:text-4xl">
-                教程、工具和创作实验
+              <h2 className="mt-5 max-w-sm bg-gradient-to-br from-white via-cyan-100 to-violet-200 bg-clip-text text-4xl font-black leading-[0.95] tracking-normal text-transparent drop-shadow-[0_10px_34px_rgba(103,232,249,0.18)] sm:text-5xl">
+                AI 实践实验室
               </h2>
-              <p className="mt-3 max-w-sm text-sm leading-6 text-[#6b6074] dark:text-white/70">
-                从 AI 工具到 App 开发，把可复现的过程留下来。
+              <p className="mt-5 max-w-sm text-sm leading-6 text-white/72">
+                把工具、教程和可复现流程沉淀下来
               </p>
 
-              <div className="mt-auto flex flex-wrap items-end justify-between gap-4">
-                <div className="flex flex-wrap gap-2">
-                  {["AI 工具", "设计", "编程"].map((badge) => (
-                    <span
-                      key={badge}
-                      className="rounded-full border border-[#eadcc8]/80 bg-white/40 px-3 py-1 text-xs font-medium text-[#6b6074] backdrop-blur dark:border-white/15 dark:bg-white/10 dark:text-white/70"
-                    >
-                      {badge}
-                    </span>
-                  ))}
-                </div>
-                <Link
-                  href="/posts/hermes-agent-2026-install-guide"
-                  className="pointer-events-auto inline-flex h-10 items-center justify-center rounded-full border border-[#eadcc8] bg-[#241b2f] px-4 text-sm font-semibold text-white shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:bg-[#3c2d4d] dark:border-white/15 dark:bg-white dark:text-[#100b1f] dark:shadow-black/20 dark:hover:bg-white/90"
-                >
-                  看最新
-                </Link>
+              <div className="mt-8 flex flex-wrap justify-center gap-2">
+                {["AI Tools", "Agent", "Local AI"].map((badge) => (
+                  <span
+                    key={badge}
+                    className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/72 backdrop-blur"
+                  >
+                    {badge}
+                  </span>
+                ))}
               </div>
             </div>
           </aside>
         </section>
 
-        <section id="tutorials" className="mx-auto w-full max-w-[1400px] border-t border-[var(--site-border)] px-6 py-12 sm:px-8 sm:py-16 lg:px-12">
+        <section id="articles" className="mx-auto w-full max-w-[1400px] border-t border-[var(--site-border)] px-6 py-14 sm:px-8 sm:py-16 lg:px-12">
           <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.24em] text-[var(--site-accent)]">
                 Tutorials
               </p>
               <h2 className="mt-3 text-3xl font-semibold text-[var(--site-ink)] sm:text-4xl">
-                最新教程
+                教程库
               </h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-[var(--site-muted)]">
-              所有公开教程都会同步显示在这里，方便直接查找和阅读。
+              所有教程都会持续同步在这里，方便直接查找和复现。
             </p>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-5 lg:grid-cols-3">
             {posts.map((post, index) => (
               <Link
                 key={post.slug}
                 href={`/posts/${post.slug}`}
                 className={[
-                  "group block rounded-[1.35rem] border border-[var(--site-border)] bg-[var(--site-card)] p-5 shadow-lg shadow-[var(--site-shadow)] transition duration-300 hover:-translate-y-1 hover:border-[var(--site-link)] hover:bg-[var(--site-card-strong)] hover:shadow-2xl sm:p-6",
-                  index === 0 ? "lg:shadow-xl" : "",
+                  "group flex min-h-[21rem] rounded-[1.25rem] border border-[var(--site-border)] bg-[var(--site-card)] p-5 shadow-[0_24px_80px_var(--site-shadow)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-[var(--site-link)] hover:bg-[var(--site-card-strong)] sm:p-6",
+                  index === 0 ? "lg:shadow-[0_28px_90px_var(--site-shadow)]" : "",
                 ].join(" ")}
               >
                 <article className="flex h-full flex-col">
@@ -183,7 +175,14 @@ export default function Home() {
         </section>
 
         <footer className="mx-auto w-full max-w-[1400px] border-t border-[var(--site-border)] px-6 py-8 text-sm text-[var(--site-faint)] sm:px-8 lg:px-12">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="max-w-2xl leading-6 text-[var(--site-muted)]">
+            <p className="font-semibold text-[var(--site-faint)]">联系</p>
+            <p className="mt-1">
+              如果你想继续讨论，欢迎写信给我。我会认真读，也通常会回 :)
+            </p>
+            <p className="mt-1 break-all font-mono">spacek995@qq.com</p>
+          </div>
+          <div className="mt-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <p>© 2026 superzyk.com. Built for reproducible AI workflows.</p>
             <a
               href="https://github.com/spacek-99"

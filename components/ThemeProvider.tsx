@@ -27,17 +27,14 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const storedTheme = window.localStorage.getItem(storageKey);
-      const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
       const nextTheme =
-        storedTheme === "dark" || storedTheme === "light" ? storedTheme : preferredTheme;
+        storedTheme === "dark" || storedTheme === "light" ? storedTheme : "dark";
 
       setTheme(nextTheme);
       applyTheme(nextTheme);

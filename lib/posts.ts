@@ -51,6 +51,21 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
 
+function normalizeTags(value: unknown): string[] {
+  if (isStringArray(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 function normalizeDate(value: unknown): string {
   if (value instanceof Date) {
     return value.toISOString().slice(0, 10);
@@ -69,7 +84,7 @@ function parseFrontMatter(data: RawFrontMatter, fallbackSlug: string): PostFront
     description: typeof data.description === "string" ? data.description : "",
     date: normalizeDate(data.date),
     slug: typeof data.slug === "string" ? data.slug : fallbackSlug,
-    tags: isStringArray(data.tags) ? data.tags : [],
+    tags: normalizeTags(data.tags),
     draft: data.draft === true,
   };
 }
@@ -126,42 +141,54 @@ function classifyCodeBlock(language: string | undefined, encodedContent: string)
     "sh",
     "shell",
     "zsh",
+    "bat",
+    "cmd",
     "powershell",
     "ps1",
     "json",
+    "js",
     "ts",
     "tsx",
-    "js",
     "jsx",
     "css",
-    "md",
-    "markdown",
+    "html",
     "yaml",
     "yml",
+    "dockerfile",
+  ]);
+  const textLanguages = new Set([
+    "text",
+    "txt",
+    "plaintext",
+    "plain",
+  ]);
+  const outputLanguages = new Set([
+    "output",
   ]);
 
   if (copyableLanguages.has(normalizedLanguage)) {
     return { className: "command-block", copyable: true };
   }
 
-  const nonEmptyLines = content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  const commandPattern = /^(sudo|npm|npx|pnpm|yarn|node|curl|wget|git|wsl|openclaw|ollama|systemctl|journalctl|ss|cp|mkdir|cat|nano|source|chmod|grep|find|ps|echo)\b/;
-  const looksLikeOutput = /\b(command not found|VERSION|systemd|v\d+\.\d+|openclaw:|unknown model|localhost|127\.0\.0\.1)\b/i.test(
-    content,
-  );
-  const looksExplanatory = /旧写法|新写法|provider|推荐|原则|组合|只是|优先|应该|理解成|路线|说明|场景|用户类型|建议|模型只是|先跑通|先用|先备份/.test(
-    content,
-  );
-  const commandLineCount = nonEmptyLines.filter((line) => commandPattern.test(line)).length;
-  const mostlyCommands =
-    nonEmptyLines.length > 0 && commandLineCount > 0 && commandLineCount / nonEmptyLines.length >= 0.7;
-
-  if (looksLikeOutput) {
+  if (outputLanguages.has(normalizedLanguage)) {
     return { className: "output-block", copyable: false };
   }
 
-  if (mostlyCommands && !looksExplanatory) {
-    return { className: "command-block", copyable: true };
+  if (normalizedLanguage && textLanguages.has(normalizedLanguage)) {
+    return { className: "text-block", copyable: false };
+  }
+
+  if (normalizedLanguage) {
+    return { className: "text-block", copyable: false };
+  }
+
+  const nonEmptyLines = content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const looksLikeOutput = /\b(command not found|VERSION|systemd|v\d+\.\d+|openclaw:|unknown model|localhost|127\.0\.0\.1)\b/i.test(
+    content,
+  );
+
+  if (looksLikeOutput && nonEmptyLines.length > 0) {
+    return { className: "output-block", copyable: false };
   }
 
   return { className: "text-block", copyable: false };
