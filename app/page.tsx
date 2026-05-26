@@ -19,6 +19,8 @@ function formatDate(date: string) {
 
 export default function Home() {
   const posts = getAllPosts();
+  const tutorialPosts = posts.filter((post) => post.slug !== "mcp-explainer-ai-agent");
+  const aiExplainerTags = ["MCP", "AI Agent", "人工智能"];
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[var(--site-bg)] text-[var(--site-ink)] transition-colors duration-300">
@@ -117,6 +119,52 @@ export default function Home() {
           </aside>
         </section>
 
+        <section className="mx-auto w-full max-w-[1400px] border-t border-[var(--site-border)] px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
+          <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.24em] text-[var(--site-accent)]">
+                AI EXPLAINER
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold text-[var(--site-ink)] sm:text-4xl">
+                AI 科普
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-[var(--site-muted)]">
+              把 AI Agent 背后的关键概念讲明白
+            </p>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-3">
+            <Link
+              href="/posts/mcp-explainer-ai-agent"
+              className="group flex min-h-[21rem] rounded-[1.25rem] border border-[var(--site-border)] bg-[var(--site-card)] p-5 shadow-[0_24px_80px_var(--site-shadow)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-[var(--site-link)] hover:bg-[var(--site-card-strong)] sm:p-6"
+            >
+              <article className="flex h-full flex-col">
+                <div className="flex flex-wrap items-center gap-2.5 text-xs text-[var(--site-faint)] sm:text-sm">
+                  <time dateTime="2026-05-26">{formatDate("2026-05-26")}</time>
+                  {aiExplainerTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-[var(--site-border)] bg-[var(--site-card-strong)] px-2.5 py-1 text-xs text-[var(--site-muted)]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <h3 className="mt-3 text-xl font-semibold leading-snug text-[var(--site-ink)] transition group-hover:text-[var(--site-link)] sm:text-[1.45rem]">
+                  MCP 是什么？AI Agent 的万能接口，终于有人讲明白了
+                </h3>
+                <p className="mt-2.5 flex-1 text-sm leading-6 text-[var(--site-muted)] sm:text-base">
+                  用小白能听懂的方式，讲清 MCP 为什么重要，以及它和 RAG、API、插件的区别。
+                </p>
+                <span className="mt-5 inline-flex w-fit rounded-full bg-[var(--site-button)] px-4 py-2 text-sm font-semibold text-[var(--site-button-text)] transition group-hover:bg-[var(--site-button-hover)]">
+                  阅读全文
+                </span>
+              </article>
+            </Link>
+          </div>
+        </section>
+
         <section id="articles" className="mx-auto w-full max-w-[1400px] border-t border-[var(--site-border)] px-6 py-14 sm:px-8 sm:py-16 lg:px-12">
           <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
@@ -133,7 +181,7 @@ export default function Home() {
           </div>
 
           <div className="grid gap-5 lg:grid-cols-3">
-            {posts.map((post, index) => (
+            {tutorialPosts.map((post, index) => (
               <Link
                 key={post.slug}
                 href={`/posts/${post.slug}`}

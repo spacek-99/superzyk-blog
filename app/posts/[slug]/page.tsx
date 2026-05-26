@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ArticleImageLightbox from "@/components/ArticleImageLightbox";
 import ArticleToc from "@/components/ArticleToc";
 import BackToTop from "@/components/BackToTop";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -111,6 +112,7 @@ export default async function PostPage({ params }: PostPageProps) {
             data-article-content
             dangerouslySetInnerHTML={{ __html: post.contentHtml }}
           />
+          <ArticleImageLightbox />
           <CodeCopyButtons />
 
           <footer className="mt-12 border-t border-[var(--site-border)] pt-8 text-center">

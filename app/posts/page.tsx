@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/posts";
+import { getAllPosts, type PostSummary } from "@/lib/posts";
 
 export const metadata: Metadata = {
   title: "作品资料 / Blog | superzyk.com",
@@ -16,8 +16,59 @@ function formatDate(date: string) {
   }).format(new Date(`${date}T00:00:00`));
 }
 
+function PostCard({ post }: { post: PostSummary }) {
+  return (
+    <article className="group flex min-h-[15rem] flex-col rounded-[1.1rem] border border-[var(--site-border)] bg-[var(--site-card)] p-5 shadow-lg shadow-[var(--site-shadow)] backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-[var(--site-link)] hover:bg-[var(--site-card-strong)]">
+      <div className="flex flex-wrap items-center gap-2.5 text-xs text-[var(--site-faint)]">
+        <time dateTime={post.date}>{formatDate(post.date)}</time>
+        {post.tags.map((tag) => (
+          <span
+            key={tag}
+            className="rounded-full border border-[var(--site-border)] bg-[var(--site-card-strong)] px-2.5 py-1 text-xs text-[var(--site-muted)]"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <h3 className="mt-3 text-xl font-semibold leading-snug text-[var(--site-ink)]">
+        <Link href={`/posts/${post.slug}`} className="transition group-hover:text-[var(--site-link)]">
+          {post.title}
+        </Link>
+      </h3>
+
+      <p className="mt-2.5 flex-1 text-sm leading-6 text-[var(--site-muted)]">
+        {post.description}
+      </p>
+
+      <Link
+        href={`/posts/${post.slug}`}
+        className="mt-5 inline-flex h-10 w-fit items-center justify-center rounded-full bg-[var(--site-button)] px-4 text-sm font-semibold text-[var(--site-button-text)] transition hover:bg-[var(--site-button-hover)]"
+      >
+        阅读全文
+      </Link>
+    </article>
+  );
+}
+
 export default function PostsPage() {
   const posts = getAllPosts();
+  const explainerPosts = posts.filter((post) => post.slug === "mcp-explainer-ai-agent");
+  const tutorialPosts = posts.filter((post) => post.slug !== "mcp-explainer-ai-agent");
+  const sections = [
+    {
+      title: "科普",
+      label: "Explainer",
+      description: "先把关键概念讲清楚，再进入具体工具和实践。",
+      posts: explainerPosts,
+    },
+    {
+      title: "教程",
+      label: "Tutorials",
+      description: "可复现的安装、部署和本地 AI 实践记录。",
+      posts: tutorialPosts,
+    },
+  ].filter((section) => section.posts.length > 0);
 
   return (
     <main className="min-h-screen overflow-hidden bg-[var(--site-bg)] text-[var(--site-ink)] transition-colors duration-300">
@@ -44,54 +95,31 @@ export default function PostsPage() {
           </p>
         </header>
 
-        <section className="mt-7 grid gap-4 lg:grid-cols-2">
-          {posts.map((post, index) => (
-            <article
-              key={post.slug}
-              className={[
-                "group flex min-h-[18rem] flex-col rounded-[1.35rem] border border-[var(--site-border)] bg-[var(--site-card)] p-5 shadow-xl shadow-[var(--site-shadow)] backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-[var(--site-link)] hover:bg-[var(--site-card-strong)] sm:p-6",
-                index === 0 ? "lg:col-span-2 lg:min-h-[15rem]" : "",
-              ].join(" ")}
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <time className="text-xs text-[var(--site-faint)] sm:text-sm" dateTime={post.date}>
-                  {formatDate(post.date)}
-                </time>
-                {index === 0 ? (
-                  <span className="rounded-full border border-[var(--site-link)] bg-[var(--site-card-strong)] px-2.5 py-1 text-xs font-semibold text-[var(--site-link)]">
-                    最新文章
-                  </span>
-                ) : null}
-              </div>
-              <h2 className="mt-4 text-2xl font-semibold leading-snug sm:text-[1.8rem]">
-                <Link href={`/posts/${post.slug}`} className="transition group-hover:text-[var(--site-link)]">
-                  {post.title}
-                </Link>
-              </h2>
-              <p className="mt-3 max-w-3xl flex-1 text-sm leading-6 text-[var(--site-muted)] sm:text-base">
-                {post.description}
-              </p>
-              {post.tags.length > 0 ? (
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-[var(--site-border)] bg-[var(--site-card-strong)] px-2.5 py-1 text-xs text-[var(--site-muted)]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+        <div className="mt-8 space-y-10">
+          {sections.map((section) => (
+            <section key={section.title}>
+              <div className="mb-5 flex flex-col justify-between gap-3 border-b border-[var(--site-border)] pb-4 sm:flex-row sm:items-end">
+                <div>
+                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--site-accent)]">
+                    {section.label}
+                  </p>
+                  <h2 className="mt-2 text-2xl font-semibold text-[var(--site-ink)]">
+                    {section.title}
+                  </h2>
                 </div>
-              ) : null}
-              <Link
-                href={`/posts/${post.slug}`}
-                className="mt-5 inline-flex w-fit rounded-full bg-[var(--site-button)] px-4 py-2 text-sm font-semibold text-[var(--site-button-text)] transition hover:bg-[var(--site-button-hover)]"
-              >
-                阅读全文
-              </Link>
-            </article>
+                <p className="max-w-xl text-sm leading-6 text-[var(--site-muted)]">
+                  {section.description}
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {section.posts.map((post) => (
+                  <PostCard key={post.slug} post={post} />
+                ))}
+              </div>
+            </section>
           ))}
-        </section>
+        </div>
       </div>
     </main>
   );

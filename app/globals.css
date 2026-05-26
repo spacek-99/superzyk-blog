@@ -160,6 +160,35 @@ a {
   margin-top: 1rem;
 }
 
+.article-content p:has(> img:only-child) {
+  margin-top: 0.75rem;
+}
+
+.article-content img {
+  display: block;
+  width: auto;
+  max-width: min(100%, 420px);
+  margin-right: auto;
+  margin-left: 0;
+  border: 1px solid var(--site-border);
+  border-radius: 1rem;
+  object-fit: contain;
+  cursor: zoom-in;
+  box-shadow: 0 10px 26px var(--site-shadow);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease,
+    transform 160ms ease;
+}
+
+.article-content img:hover {
+  border-color: color-mix(in srgb, var(--site-link) 42%, var(--site-border));
+  filter: brightness(1.05);
+  box-shadow: 0 14px 34px var(--site-shadow);
+  transform: translateY(-1px);
+}
+
 .article-content a {
   color: #6d4fb6;
   color: var(--site-link);
