@@ -6,6 +6,10 @@ import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
 const postsDirectory = path.join(process.cwd(), "content", "posts");
+const aiExplainerSlugs = new Set([
+  "mcp-explainer-ai-agent",
+  "mcp-categories-for-beginners",
+]);
 
 export type PostFrontMatter = {
   title: string;
@@ -16,6 +20,10 @@ export type PostFrontMatter = {
 };
 
 export type PostSummary = PostFrontMatter;
+
+export function isAiExplainerPost(post: Pick<PostSummary, "slug">) {
+  return aiExplainerSlugs.has(post.slug);
+}
 
 export type PostHeading = {
   level: 2 | 3;

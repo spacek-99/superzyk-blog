@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
-import { getAllPosts, type PostSummary } from "@/lib/posts";
+import { getAllPosts, isAiExplainerPost, type PostSummary } from "@/lib/posts";
 
 export const metadata: Metadata = {
   title: "作品资料 / Blog | superzyk.com",
@@ -53,8 +53,8 @@ function PostCard({ post }: { post: PostSummary }) {
 
 export default function PostsPage() {
   const posts = getAllPosts();
-  const explainerPosts = posts.filter((post) => post.slug === "mcp-explainer-ai-agent");
-  const tutorialPosts = posts.filter((post) => post.slug !== "mcp-explainer-ai-agent");
+  const explainerPosts = posts.filter(isAiExplainerPost);
+  const tutorialPosts = posts.filter((post) => !isAiExplainerPost(post));
   const sections = [
     {
       title: "科普",

@@ -583,12 +583,12 @@ GitHub 和代码项目
 
 ## 参考资料
 
-- [What is the Model Context Protocol?](https://modelcontextprotocol.io/docs/getting-started/intro)
-- [Understanding MCP servers](https://modelcontextprotocol.io/docs/learn/server-concepts)
-- [Notion MCP 官方文档](https://developers.notion.com/guides/mcp/overview)
-- [Zapier MCP](https://zapier.com/mcp)
-- [Microsoft Playwright MCP](https://github.com/microsoft/playwright-mcp)
-- [GitHub 官方 MCP Server](https://github.com/github/github-mcp-server)
-- [Cloudflare MCP Servers](https://developers.cloudflare.com/agents/model-context-protocol/mcp-servers-for-cloudflare/)
-- [Official MCP Registry](https://registry.modelcontextprotocol.io/)
-- [MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices)
+- What is the Model Context Protocol：`https://modelcontextprotocol.io/docs/getting-started/intro`
+- Understanding MCP servers：`https://modelcontextprotocol.io/docs/learn/server-concepts`
+- Notion MCP 官方文档：`https://developers.notion.com/guides/mcp/overview`
+- Zapier MCP：`https://zapier.com/mcp`
+- Microsoft Playwright MCP：`https://github.com/microsoft/playwright-mcp`
+- GitHub 官方 MCP Server：`https://github.com/github/github-mcp-server`
+- Cloudflare MCP Servers：`https://developers.cloudflare.com/agents/model-context-protocol/mcp-servers-for-cloudflare/`
+- Official MCP Registry：`https://registry.modelcontextprotocol.io/`
+- MCP Security Best Practices：`https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices`
