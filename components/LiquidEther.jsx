@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
 import "./LiquidEther.css";
 
-const vertexShader = `
-  varying vec2 vUv;
+const vertexShader = `#version 300 es
+  in vec2 aPosition;
+  out vec2 vUv;
 
   void main() {
-    vUv = uv;
-    gl_Position = vec4(position.xy, 0.0, 1.0);
+    vUv = aPosition * 0.5 + 0.5;
+    gl_Position = vec4(aPosition, 0.0, 1.0);
   }
 `;
 
-const fragmentShader = `
+const fragmentShader = `#version 300 es
   precision highp float;
 
   uniform float uTime;
@@ -24,7 +24,8 @@ const fragmentShader = `
   uniform vec3 uColorA;
   uniform vec3 uColorB;
   uniform vec3 uColorC;
-  varying vec2 vUv;
+  in vec2 vUv;
+  out vec4 outColor;
 
   float hash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -78,16 +79,108 @@ const fragmentShader = `
     alpha *= smoothstep(0.0, 0.08, uv.x) * smoothstep(1.0, 0.92, uv.x);
     alpha *= smoothstep(0.0, 0.08, uv.y) * smoothstep(1.0, 0.9, uv.y);
 
-    gl_FragColor = vec4(color, alpha);
+    outColor = vec4(color, alpha);
   }
 `;
 
-function hexToColor(hex) {
-  return new THREE.Color(hex);
+// Match the previous renderer's linear color uniforms. This custom shader never
+// applied an output color-space transform, so adding one would change its palette.
+function hexToLinear(hex) {
+  const value = Number.parseInt(hex.slice(1), 16);
+  return [16, 8, 0].map((shift) => {
+    const channel = ((value >> shift) & 255) / 255;
+    return channel < 0.04045
+      ? channel * 0.0773993808
+      : Math.pow(channel * 0.9478672986 + 0.0521327014, 2.4);
+  });
 }
 
+function createResources(gl, colors, cursorSize) {
+  const shaders = [];
+  let program;
+  let buffer;
+  let vertexArray;
+
+  try {
+    for (const [type, source] of [
+      [gl.VERTEX_SHADER, vertexShader],
+      [gl.FRAGMENT_SHADER, fragmentShader],
+    ]) {
+      const shader = gl.createShader(type);
+      if (!shader) throw new Error("WebGL shader unavailable");
+      shaders.push(shader);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error("WebGL shader compilation failed");
+      }
+    }
+
+    program = gl.createProgram();
+    if (!program) throw new Error("WebGL program unavailable");
+    shaders.forEach((shader) => gl.attachShader(program, shader));
+    gl.bindAttribLocation(program, 0, "aPosition");
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      throw new Error("WebGL program linking failed");
+    }
+
+    buffer = gl.createBuffer();
+    vertexArray = gl.createVertexArray();
+    if (!buffer || !vertexArray) throw new Error("WebGL geometry unavailable");
+    gl.bindVertexArray(vertexArray);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    // The same two triangles and UV orientation as the original 2 x 2 plane.
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, 1, -1, -1, 1, 1,
+      -1, -1, 1, -1, 1, 1,
+    ]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.useProgram(program);
+
+    const uniforms = Object.fromEntries([
+      "uTime", "uMouse", "uMouseDelta", "uMouseForce", "uCursorSize",
+      "uColorA", "uColorB", "uColorC",
+    ].map((name) => [name, gl.getUniformLocation(program, name)]));
+    gl.uniform1f(uniforms.uCursorSize, cursorSize / 1000);
+    ["uColorA", "uColorB", "uColorC"].forEach((name, index) => {
+      gl.uniform3fv(uniforms[name], hexToLinear(colors[index] ?? defaultColors[index]));
+    });
+    gl.clearColor(0, 0, 0, 0);
+    gl.disable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendEquation(gl.FUNC_ADD);
+    // Store premultiplied pixels, matching the canvas compositor and the previous
+    // transparent material's normal blending. Otherwise soft edges turn dark.
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+    return { program, buffer, vertexArray, uniforms };
+  } catch (error) {
+    if (buffer) gl.deleteBuffer(buffer);
+    if (vertexArray) gl.deleteVertexArray(vertexArray);
+    if (program) gl.deleteProgram(program);
+    throw error;
+  } finally {
+    shaders.forEach((shader) => {
+      if (program && gl.isProgram(program)) gl.detachShader(program, shader);
+      gl.deleteShader(shader);
+    });
+  }
+}
+
+function disposeResources(gl, resources) {
+  if (!resources) return;
+  gl.deleteBuffer(resources.buffer);
+  gl.deleteVertexArray(resources.vertexArray);
+  gl.deleteProgram(resources.program);
+}
+
+const defaultColors = ["#8b5cf6", "#c084fc", "#93c5fd"];
+
 export default function LiquidEther({
-  colors = ["#8b5cf6", "#c084fc", "#93c5fd"],
+  colors = defaultColors,
+  fallback = null,
   mouseForce = 12,
   cursorSize = 90,
   resolution = 0.35,
@@ -97,10 +190,8 @@ export default function LiquidEther({
   autoResumeDelay = 2500,
 }) {
   const containerRef = useRef(null);
-  const rendererRef = useRef(null);
-  const uniformsRef = useRef(null);
+  const fallbackRef = useRef(null);
   const pointerRef = useRef({ x: 0.5, y: 0.5, dx: 0, dy: 0, active: false, lastMove: 0 });
-  const frameRef = useRef(0);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -109,120 +200,200 @@ export default function LiquidEther({
       return undefined;
     }
 
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: false,
-      powerPreference: "low-power",
-    });
-    renderer.setClearColor(0x000000, 0);
-    renderer.domElement.style.position = "absolute";
-    renderer.domElement.style.inset = "0";
-    renderer.domElement.style.width = "100%";
-    renderer.domElement.style.height = "100%";
-    renderer.domElement.style.pointerEvents = "auto";
-    container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
+    const fallbackElement = fallbackRef.current;
+    if (fallbackElement) fallbackElement.hidden = false;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    const geometry = new THREE.PlaneGeometry(2, 2);
+    const canvas = document.createElement("canvas");
+    let gl;
+    let resources;
+    try {
+      gl = canvas.getContext("webgl2", {
+        alpha: true,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        premultipliedAlpha: true,
+        powerPreference: "low-power",
+      });
+      if (!gl) return undefined;
+      resources = createResources(gl, colors, cursorSize);
+    } catch {
+      // WebGL or shader compilation can be unavailable; retain the static image.
+      return undefined;
+    }
+    Object.assign(canvas.style, {
+      position: "absolute", inset: "0", width: "100%", height: "100%",
+      pointerEvents: "auto", visibility: "hidden",
+    });
+    container.appendChild(canvas);
+
     const safeResolution = Math.max(0.2, Math.min(1, resolution));
-    const uniforms = {
-      uTime: { value: 0 },
-      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
-      uMouseDelta: { value: new THREE.Vector2(0, 0) },
-      uMouseForce: { value: 0 },
-      uCursorSize: { value: cursorSize / 1000 },
-      uColorA: { value: hexToColor(colors[0] ?? "#8b5cf6") },
-      uColorB: { value: hexToColor(colors[1] ?? "#c084fc") },
-      uColorC: { value: hexToColor(colors[2] ?? "#93c5fd") },
-    };
-    uniformsRef.current = uniforms;
+    const mouse = { x: 0.5, y: 0.5, dx: 0, dy: 0, force: 0 };
+    let frameId = null;
+    let previousFrameTime = null;
+    let elapsed = 0;
+    let inView = !("IntersectionObserver" in window);
+    let contextLost = false;
+    let failed = false;
+    let disposed = false;
+    let showingFallback = true;
 
-    const material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      uniforms,
-      transparent: true,
-      depthTest: false,
-      depthWrite: false,
-    });
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    const shouldAnimate = () =>
+      inView && document.visibilityState === "visible" && !contextLost && !failed && !disposed;
+
+    const pause = () => {
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+      frameId = null;
+      previousFrameTime = null;
+    };
+
+    const showFallback = () => {
+      pause();
+      canvas.style.visibility = "hidden";
+      if (fallbackElement) fallbackElement.hidden = false;
+      showingFallback = true;
+    };
+
+    const handleRenderFailure = () => {
+      failed = true;
+      showFallback();
+    };
 
     const resize = () => {
-      const width = Math.max(1, container.clientWidth);
-      const height = Math.max(1, container.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2) * safeResolution);
-      renderer.setSize(width, height, false);
+      if (contextLost || disposed) return;
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2) * safeResolution;
+      const width = Math.max(1, Math.floor(container.clientWidth * pixelRatio));
+      const height = Math.max(1, Math.floor(container.clientHeight * pixelRatio));
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
+      gl.viewport(0, 0, width, height);
     };
 
     const updatePointer = (event) => {
+      if (!shouldAnimate()) return;
       const rect = container.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
       const x = (event.clientX - rect.left) / rect.width;
       const y = 1 - (event.clientY - rect.top) / rect.height;
       const inside = x >= 0 && x <= 1 && y >= 0 && y <= 1;
-      const previous = pointerRef.current;
-
-      pointerRef.current = {
-        x: inside ? x : pointerRef.current.x,
-        y: inside ? y : pointerRef.current.y,
-        dx: inside ? x - previous.x : 0,
-        dy: inside ? y - previous.y : 0,
-        active: inside,
-        lastMove: performance.now(),
-      };
+      const pointer = pointerRef.current;
+      pointer.dx = inside ? x - pointer.x : 0;
+      pointer.dy = inside ? y - pointer.y : 0;
+      if (inside) {
+        pointer.x = x;
+        pointer.y = y;
+      }
+      pointer.active = inside;
+      pointer.lastMove = performance.now();
     };
 
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(container);
-    window.addEventListener("pointermove", updatePointer, { passive: true });
-    resize();
-
-    const clock = new THREE.Clock();
-    const animate = () => {
-      const elapsed = clock.getElapsedTime();
-      const now = performance.now();
+    const animate = (now) => {
+      frameId = null;
+      if (!shouldAnimate()) {
+        pause();
+        return;
+      }
+      if (previousFrameTime !== null) elapsed += (now - previousFrameTime) / 1000;
+      previousFrameTime = now;
       const pointer = pointerRef.current;
       const useAutoDemo = autoDemo && now - pointer.lastMove > autoResumeDelay;
-
-      uniforms.uTime.value = elapsed;
 
       if (useAutoDemo) {
         const x = 0.5 + Math.cos(elapsed * autoSpeed) * 0.24;
         const y = 0.5 + Math.sin(elapsed * autoSpeed * 0.82) * 0.22;
-        uniforms.uMouse.value.set(x, y);
-        uniforms.uMouseDelta.value.set(
-          -Math.sin(elapsed * autoSpeed) * 0.24,
-          Math.cos(elapsed * autoSpeed * 0.82) * 0.18,
-        );
-        uniforms.uMouseForce.value = autoIntensity;
+        mouse.x = x;
+        mouse.y = y;
+        mouse.dx = -Math.sin(elapsed * autoSpeed) * 0.24;
+        mouse.dy = Math.cos(elapsed * autoSpeed * 0.82) * 0.18;
+        mouse.force = autoIntensity;
       } else {
-        uniforms.uMouse.value.lerp(new THREE.Vector2(pointer.x, pointer.y), 0.18);
-        uniforms.uMouseDelta.value.lerp(
-          new THREE.Vector2(pointer.dx, pointer.dy).multiplyScalar(pointer.active ? 18 : 0),
-          0.22,
-        );
-        uniforms.uMouseForce.value +=
-          ((pointer.active ? mouseForce : 0) - uniforms.uMouseForce.value) * 0.08;
+        mouse.x += (pointer.x - mouse.x) * 0.18;
+        mouse.y += (pointer.y - mouse.y) * 0.18;
+        mouse.dx += (pointer.dx * (pointer.active ? 18 : 0) - mouse.dx) * 0.22;
+        mouse.dy += (pointer.dy * (pointer.active ? 18 : 0) - mouse.dy) * 0.22;
+        mouse.force += ((pointer.active ? mouseForce : 0) - mouse.force) * 0.08;
       }
 
-      renderer.render(scene, camera);
-      frameRef.current = window.requestAnimationFrame(animate);
+      try {
+        const { uniforms } = resources;
+        gl.uniform1f(uniforms.uTime, elapsed);
+        gl.uniform2f(uniforms.uMouse, mouse.x, mouse.y);
+        gl.uniform2f(uniforms.uMouseDelta, mouse.dx, mouse.dy);
+        gl.uniform1f(uniforms.uMouseForce, mouse.force);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        // Verify initial/restored setup once; avoid a driver readback every frame.
+        if (showingFallback && gl.getError() !== gl.NO_ERROR) {
+          throw new Error("WebGL drawing failed");
+        }
+      } catch {
+        handleRenderFailure();
+      }
+      if (!shouldAnimate()) return;
+      if (showingFallback) {
+        canvas.style.visibility = "visible";
+        if (fallbackElement) fallbackElement.hidden = true;
+        showingFallback = false;
+      }
+      frameId = window.requestAnimationFrame(animate);
     };
 
-    frameRef.current = window.requestAnimationFrame(animate);
+    const updateAnimation = () => {
+      if (!shouldAnimate()) {
+        pause();
+      } else if (frameId === null) {
+        frameId = window.requestAnimationFrame(animate);
+      }
+    };
+
+    const handleContextLost = (event) => {
+      event.preventDefault();
+      contextLost = true;
+      // A lost context invalidates and releases every GPU object automatically.
+      resources = null;
+      showFallback();
+    };
+
+    const handleContextRestored = () => {
+      if (disposed) return;
+      try {
+        resources = createResources(gl, colors, cursorSize);
+        contextLost = false;
+        failed = false;
+        resize();
+        updateAnimation();
+      } catch {
+        handleRenderFailure();
+      }
+    };
+
+    const intersectionObserver = "IntersectionObserver" in window
+      ? new IntersectionObserver(([entry]) => {
+        inView = entry.isIntersecting && entry.intersectionRatio > 0;
+        updateAnimation();
+      })
+      : null;
+    const resizeObserver = new ResizeObserver(resize);
+    intersectionObserver?.observe(container);
+    resizeObserver.observe(container);
+    document.addEventListener("visibilitychange", updateAnimation);
+    canvas.addEventListener("webglcontextlost", handleContextLost);
+    canvas.addEventListener("webglcontextrestored", handleContextRestored);
+    window.addEventListener("pointermove", updatePointer, { passive: true });
+    resize();
+    updateAnimation();
 
     return () => {
-      window.cancelAnimationFrame(frameRef.current);
+      disposed = true;
+      pause();
       window.removeEventListener("pointermove", updatePointer);
+      document.removeEventListener("visibilitychange", updateAnimation);
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
+      canvas.removeEventListener("webglcontextrestored", handleContextRestored);
+      intersectionObserver?.disconnect();
       resizeObserver.disconnect();
-      geometry.dispose();
-      material.dispose();
-      renderer.dispose();
-      renderer.domElement.remove();
-      rendererRef.current = null;
-      uniformsRef.current = null;
+      disposeResources(gl, resources);
+      canvas.remove();
     };
   }, [
     autoDemo,
@@ -235,5 +406,9 @@ export default function LiquidEther({
     resolution,
   ]);
 
-  return <div ref={containerRef} className="liquid-ether-container" aria-hidden="true" />;
+  return (
+    <div ref={containerRef} className="liquid-ether-container" aria-hidden="true">
+      <div ref={fallbackRef} className="absolute inset-0">{fallback}</div>
+    </div>
+  );
 }

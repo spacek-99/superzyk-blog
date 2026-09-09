@@ -2,6 +2,9 @@
 title: "8G 显存跑 35B 多模态模型：Qwen3.6 + llama.cpp 本地部署教程"
 description: "普通 8G 显卡如何通过 MoE 稀疏激活、GGUF 量化和 llama.cpp CPU Offload 跑起 35B 多模态模型。"
 date: "2026-05-23"
+category: tutorial
+environment: "8G 显存 + 系统内存 Offload；llama.cpp / GGUF"
+version: "Qwen3.6-35B-A3B；基于 2026 年 5 月资料整理"
 tags:
   - AI 本地部署
   - llama.cpp

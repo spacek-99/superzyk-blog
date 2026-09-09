@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "archives/**",
+    "artifacts/**",
+    // Vendored design tooling is not application source.
+    ".agents/skills/impeccable/**",
   ]),
 ]);
 

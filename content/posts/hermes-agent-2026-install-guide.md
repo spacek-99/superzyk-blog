@@ -2,6 +2,9 @@
 title: "Hermes Agent 最新安装教程：Windows + WSL2 国内/国际通用版"
 description: "面向小白的 Hermes Agent 最新安装与配置教程，覆盖 Windows + WSL2、国际/国内大模型 API、本地 Ollama/llama.cpp/LM Studio/vLLM 部署、消息网关、Dashboard 与常见问题。"
 date: "2026-05-20"
+category: tutorial
+environment: "Windows + WSL2；云端 API 或本地模型"
+version: "基于 2026 年 5 月的官方文档整理"
 tags:
   - Hermes Agent
   - AI Agent

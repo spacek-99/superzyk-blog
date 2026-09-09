@@ -2,6 +2,7 @@
 title: "普通人最值得装的 MCP 分类：新手先装这几类就够了"
 description: "MCP 不是装得越多越强。本文用普通人能听懂的方式，讲清楚搜索、文件、知识库、自动化、浏览器、GitHub 和云服务这几类 MCP 的真实用途、优先级和安全边界。"
 date: "2026-05-27"
+category: explainer
 tags: ["MCP", "AI Agent", "AI工具", "AI科普"]
 ---
 

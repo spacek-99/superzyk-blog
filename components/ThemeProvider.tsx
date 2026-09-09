@@ -8,8 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-
-type Theme = "light" | "dark";
+import { readStoredTheme, saveTheme, type Theme } from "@/lib/theme";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -19,7 +18,6 @@ type ThemeContextValue = {
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
-const storageKey = "superzyk-theme";
 
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
@@ -32,9 +30,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const storedTheme = window.localStorage.getItem(storageKey);
-      const nextTheme =
-        storedTheme === "dark" || storedTheme === "light" ? storedTheme : "dark";
+      const nextTheme = readStoredTheme();
 
       setTheme(nextTheme);
       applyTheme(nextTheme);
@@ -49,8 +45,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    window.localStorage.setItem(storageKey, theme);
     applyTheme(theme);
+    saveTheme(theme);
   }, [mounted, theme]);
 
   const value = useMemo<ThemeContextValue>(

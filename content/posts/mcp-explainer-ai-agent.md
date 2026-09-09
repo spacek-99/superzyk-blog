@@ -2,6 +2,8 @@
 title: "MCP 是什么？AI Agent 的万能接口，终于有人讲明白了"
 description: "用小白也能听懂的方式，讲清 MCP 为什么重要，以及它和 RAG、API、插件的区别。"
 date: "2026-05-26"
+category: explainer
+coverImage: "/images/posts/mcp-explainer-ai-agent/cover.webp"
 tags: ["MCP", "AI Agent", "人工智能"]
 ---
 

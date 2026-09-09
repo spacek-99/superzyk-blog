@@ -2,6 +2,9 @@
 title: "OpenClaw 最新安装教程：Windows + WSL2 国内/国际通用版"
 description: "从零搭建自己的本地 AI Agent，支持 DeepSeek V4、Qwen 千问、MiniMax、Xiaomi MiMo、火山方舟豆包、OpenAI、Claude、Gemini 和本地 Ollama。"
 date: "2026-05-15"
+category: tutorial
+environment: "Windows + WSL2；兼及 macOS / Linux"
+version: "OpenClaw 2026.5.12"
 slug: "openclaw-2026-install-guide"
 tags:
   - OpenClaw

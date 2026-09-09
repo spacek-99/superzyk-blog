@@ -1,15 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { CORE_SCHEMA, load as loadYaml } from "js-yaml";
 import { remark } from "remark";
 import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 
 const postsDirectory = path.join(process.cwd(), "content", "posts");
-const aiExplainerSlugs = new Set([
-  "mcp-explainer-ai-agent",
-  "mcp-categories-for-beginners",
-]);
+
+export type PostCategory = "explainer" | "tutorial";
 
 export type PostFrontMatter = {
   title: string;
@@ -17,12 +16,18 @@ export type PostFrontMatter = {
   date: string;
   slug: string;
   tags: string[];
+  category: PostCategory;
+  updatedAt?: string;
+  environment?: string;
+  version?: string;
+  verifiedAt?: string;
+  coverImage?: string;
 };
 
 export type PostSummary = PostFrontMatter;
 
-export function isAiExplainerPost(post: Pick<PostSummary, "slug">) {
-  return aiExplainerSlugs.has(post.slug);
+export function isAiExplainerPost(post: Pick<PostSummary, "category">) {
+  return post.category === "explainer";
 }
 
 export type PostHeading = {
@@ -43,6 +48,12 @@ type RawFrontMatter = {
   slug?: unknown;
   tags?: unknown;
   draft?: unknown;
+  category?: unknown;
+  updatedAt?: unknown;
+  environment?: unknown;
+  version?: unknown;
+  verifiedAt?: unknown;
+  coverImage?: unknown;
 };
 
 function toPostSummary(frontMatter: PostFrontMatter & { draft: boolean }): PostSummary {
@@ -52,6 +63,12 @@ function toPostSummary(frontMatter: PostFrontMatter & { draft: boolean }): PostS
     date: frontMatter.date,
     slug: frontMatter.slug,
     tags: frontMatter.tags,
+    category: frontMatter.category,
+    updatedAt: frontMatter.updatedAt,
+    environment: frontMatter.environment,
+    version: frontMatter.version,
+    verifiedAt: frontMatter.verifiedAt,
+    coverImage: frontMatter.coverImage,
   };
 }
 
@@ -86,14 +103,62 @@ function normalizeDate(value: unknown): string {
   return "";
 }
 
+function optionalText(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function readDate(value: unknown, field: string, slug: string, optional = false): string | undefined {
+  if (optional && (value === undefined || value === null || value === "")) return undefined;
+
+  const date = normalizeDate(value);
+  const parsed = new Date(`${date}T00:00:00Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date) {
+    throw new Error(`${slug}: ${field} must be a valid YYYY-MM-DD date`);
+  }
+  return date;
+}
+
 function parseFrontMatter(data: RawFrontMatter, fallbackSlug: string): PostFrontMatter & { draft: boolean } {
+  // Unfinished drafts are private authoring files, not publication input.
+  if (data.draft === true) {
+    return {
+      title: typeof data.title === "string" ? data.title : fallbackSlug,
+      description: typeof data.description === "string" ? data.description : "",
+      date: normalizeDate(data.date),
+      slug: typeof data.slug === "string" ? data.slug : fallbackSlug,
+      tags: normalizeTags(data.tags),
+      category: data.category === "explainer" ? "explainer" : "tutorial",
+      draft: true,
+    };
+  }
+
+  const date = readDate(data.date, "date", fallbackSlug)!;
+  const updatedAt = readDate(data.updatedAt, "updatedAt", fallbackSlug, true);
+  const category = data.category ?? "tutorial";
+  if (category !== "explainer" && category !== "tutorial") {
+    throw new Error(`${fallbackSlug}: category must be explainer or tutorial`);
+  }
+  if (updatedAt && updatedAt < date) {
+    throw new Error(`${fallbackSlug}: updatedAt must not precede date`);
+  }
+  const coverImage = optionalText(data.coverImage);
+  if (coverImage && (!coverImage.startsWith("/") || coverImage.startsWith("//") || coverImage.includes(".."))) {
+    throw new Error(`${fallbackSlug}: coverImage must be a site-relative public image path`);
+  }
+
   return {
     title: typeof data.title === "string" ? data.title : fallbackSlug,
     description: typeof data.description === "string" ? data.description : "",
-    date: normalizeDate(data.date),
+    date,
     slug: typeof data.slug === "string" ? data.slug : fallbackSlug,
     tags: normalizeTags(data.tags),
-    draft: data.draft === true,
+    draft: false,
+    category,
+    updatedAt,
+    environment: optionalText(data.environment),
+    version: optionalText(data.version),
+    verifiedAt: readDate(data.verifiedAt, "verifiedAt", fallbackSlug, true),
+    coverImage,
   };
 }
 
@@ -108,7 +173,19 @@ function getPostFileNames() {
 function readPostFile(fileName: string) {
   const fullPath = path.join(postsDirectory, fileName);
   const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
+  const { data, content } = matter(fileContents, {
+    engines: {
+      yaml: (source) => {
+        // Keep unquoted dates as written; YAML's default timestamp type normalizes invalid days.
+        const parsed = loadYaml(source, { schema: CORE_SCHEMA, filename: fileName });
+        if (parsed === undefined || parsed === null) return {};
+        if (typeof parsed !== "object" || Array.isArray(parsed)) {
+          throw new Error(`${fileName}: front matter must be a YAML mapping`);
+        }
+        return parsed;
+      },
+    },
+  });
   const fallbackSlug = fileName.replace(/\.md$/, "");
   const frontMatter = parseFrontMatter(data, fallbackSlug);
 

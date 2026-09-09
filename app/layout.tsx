@@ -1,27 +1,42 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Analytics } from "@vercel/analytics/next";
+import {
+  DEFAULT_OG_IMAGE,
+  DEFAULT_OG_IMAGE_ALT,
+  DEFAULT_OG_IMAGE_HEIGHT,
+  DEFAULT_OG_IMAGE_WIDTH,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "superzyk.com | AI、开发与 Homelab 笔记",
-  description:
-    "superzyk 的个人博客，记录 AI Agent、本地 AI、OpenClaw、Hermes、Codex、llama.cpp、开发工具与 Homelab 实践。",
-  metadataBase: new URL("https://superzyk.com"),
+  title: `${SITE_NAME} | AI、开发与 Homelab 笔记`,
+  description: SITE_DESCRIPTION,
+  metadataBase: new URL(SITE_URL),
   openGraph: {
-    title: "superzyk.com",
-    description:
-      "AI Agent、本地 AI、开发工具、Homelab 与网络折腾类个人技术博客。",
-    url: "https://superzyk.com",
-    siteName: "superzyk.com",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     locale: "zh_CN",
     type: "website",
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: DEFAULT_OG_IMAGE_WIDTH,
+        height: DEFAULT_OG_IMAGE_HEIGHT,
+        alt: DEFAULT_OG_IMAGE_ALT,
+      },
+    ],
   },
   twitter: {
-    card: "summary",
-    title: "superzyk.com",
-    description:
-      "AI Agent、本地 AI、开发工具、Homelab 与网络折腾类个人技术博客。",
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [{ url: DEFAULT_OG_IMAGE, alt: DEFAULT_OG_IMAGE_ALT }],
   },
 };
 

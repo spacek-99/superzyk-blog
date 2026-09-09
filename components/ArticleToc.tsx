@@ -1,7 +1,7 @@
 "use client";
 
 import type { PostHeading } from "@/lib/posts";
-import { useEffect, useState } from "react";
+import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
 type ArticleTocProps = {
   headings: PostHeading[];
@@ -9,6 +9,11 @@ type ArticleTocProps = {
 
 export default function ArticleToc({ headings }: ArticleTocProps) {
   const [activeId, setActiveId] = useState(headings[0]?.id ?? "");
+  const [isOpen, setIsOpen] = useState(false);
+  const navId = useId();
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const navigationFrameRef = useRef<number | null>(null);
+  const activeHeading = headings.find((heading) => heading.id === activeId);
 
   useEffect(() => {
     if (headings.length === 0) {
@@ -23,52 +28,115 @@ export default function ArticleToc({ headings }: ArticleTocProps) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+    let scrollFrame: number | null = null;
 
-        if (visibleEntry?.target.id) {
-          setActiveId(visibleEntry.target.id);
-        }
-      },
-      {
-        rootMargin: "-18% 0px -68% 0px",
-        threshold: [0, 1],
-      },
-    );
+    const updateActiveHeading = () => {
+      scrollFrame = null;
+      const activationLine = Math.max(96, window.innerHeight * 0.18);
+      let current = headingElements[0];
 
-    headingElements.forEach((element) => observer.observe(element));
+      for (const heading of headingElements) {
+        if (heading.getBoundingClientRect().top > activationLine) break;
+        current = heading;
+      }
 
-    return () => observer.disconnect();
+      if (Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight - 2) {
+        current = headingElements[headingElements.length - 1];
+      }
+
+      setActiveId(current.id);
+    };
+
+    const scheduleUpdate = () => {
+      if (scrollFrame === null) {
+        scrollFrame = window.requestAnimationFrame(updateActiveHeading);
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    const content = headingElements[0].closest(".article-content");
+    if (content) resizeObserver.observe(content);
+
+    scheduleUpdate();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    window.addEventListener("hashchange", scheduleUpdate);
+
+    return () => {
+      if (scrollFrame !== null) window.cancelAnimationFrame(scrollFrame);
+      if (navigationFrameRef.current !== null) window.cancelAnimationFrame(navigationFrameRef.current);
+      resizeObserver.disconnect();
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener("hashchange", scheduleUpdate);
+    };
   }, [headings]);
 
   if (headings.length === 0) {
     return null;
   }
 
+  const closeOnEscape = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === "Escape" && isOpen) {
+      event.preventDefault();
+      setIsOpen(false);
+      toggleRef.current?.focus({ preventScroll: true });
+    }
+  };
+
   return (
-    <aside className="article-toc">
-      <p className="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-[var(--site-faint)]">
+    <aside className="article-toc" data-open={isOpen}>
+      <p className="article-toc-title">
         本页目录
       </p>
-      <nav aria-label="文章目录" className="article-toc-nav">
+      <button
+        ref={toggleRef}
+        type="button"
+        className="article-toc-toggle"
+        aria-expanded={isOpen}
+        aria-controls={navId}
+        onClick={() => setIsOpen((open) => !open)}
+        onKeyDown={closeOnEscape}
+      >
+        <span className="article-toc-toggle-label">本页目录</span>
+        <span className="article-toc-current" aria-hidden="true">{activeHeading?.text}</span>
+        <span className="article-toc-toggle-action" aria-hidden="true">{isOpen ? "收起 −" : "展开 +"}</span>
+      </button>
+      <nav id={navId} aria-label="文章目录" className="article-toc-nav">
         {headings.map((heading) => {
           const isActive = heading.id === activeId;
 
           return (
             <a
               key={heading.id}
-              href={`#${heading.id}`}
+              href={`#${encodeURIComponent(heading.id)}`}
+              aria-current={isActive ? "location" : undefined}
+              onKeyDown={closeOnEscape}
               onClick={(event) => {
+                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                const target = document.getElementById(heading.id);
+                if (!target) return;
+
                 event.preventDefault();
-                document.getElementById(heading.id)?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                });
-                window.history.replaceState(null, "", `#${heading.id}`);
+                setIsOpen(false);
                 setActiveId(heading.id);
+
+                const hash = `#${encodeURIComponent(heading.id)}`;
+                if (window.location.hash !== hash) {
+                  window.history.pushState(window.history.state, "", hash);
+                }
+
+                if (navigationFrameRef.current !== null) window.cancelAnimationFrame(navigationFrameRef.current);
+                // Collapse the in-flow menu before measuring the destination.
+                navigationFrameRef.current = window.requestAnimationFrame(() => {
+                  navigationFrameRef.current = null;
+                  if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+                  target.focus({ preventScroll: true });
+                  target.scrollIntoView({
+                    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+                    block: "start",
+                  });
+                });
               }}
               className={[
                 "article-toc-link",
