@@ -370,7 +370,9 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     .use(remarkGfm)
     .use(remarkHtml)
     .process(stripDuplicateOpeningH1(content, frontMatter.title));
-  const { html: contentHtml, headings } = addHeadingIds(classifyCodeBlocks(processedContent.toString()));
+  // The page already owns the H1. Include legacy top-level sections in its TOC.
+  const articleHtml = processedContent.toString().replace(/<(\/?)h1>/g, "<$1h2>");
+  const { html: contentHtml, headings } = addHeadingIds(classifyCodeBlocks(articleHtml));
 
   return {
     ...toPostSummary(frontMatter),

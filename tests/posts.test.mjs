@@ -104,3 +104,20 @@ test("published content metadata and drafts remain independent", async (t) => {
     }
   });
 });
+
+test("legacy top-level article sections appear in the TOC without duplicating the page H1", async () => {
+  const file = path.join(fixturePosts, "legacy-sections.md");
+  writeFileSync(file, '---\ntitle: 教程\ndate: "2026-05-01"\n---\n\n# 教程\n\n介绍。\n\n# 启动与验证\n\n步骤。\n\n## 原有章节\n\n内容。\n');
+  try {
+    const post = await posts.getPostBySlug("legacy-sections");
+    assert.ok(!post.contentHtml.includes("<h1"));
+    assert.deepEqual(post.headings.map(({ text, level }) => ({ text, level })), [
+      { text: "启动与验证", level: 2 },
+      { text: "原有章节", level: 2 },
+    ]);
+    assert.ok(post.contentHtml.includes('id="启动与验证"'));
+    assert.ok(post.contentHtml.includes('id="原有章节"'));
+  } finally {
+    rmSync(file);
+  }
+});
