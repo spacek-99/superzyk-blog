@@ -1,0 +1,26 @@
+@font-face {
+  font-family: "Reading Serif";
+  src: url("/fonts/noto-serif-sc-title.ttf") format("truetype");
+  font-display: swap;
+  font-weight: 500;
+}
+
+.home-page { width: min(100% - 3rem, 960px); margin-inline: auto; }
+.home-intro { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: 2rem; padding: 2rem 0 2.5rem; }
+.home-intro-copy { min-width: 0; }
+.home-scene { width: 100%; min-width: 0; }
+.home-intro h1 { font-family: "Reading Serif", "Songti SC", serif; font-size: clamp(2rem, 3.3vw, 2.65rem); font-weight: 500; line-height: 1.55; letter-spacing: -.025em; text-wrap: balance; }
+.home-intro h1 span { color: var(--site-link); }
+.home-intro p { margin-top: 1.1rem; color: var(--site-muted); font-size: .95rem; line-height: 1.9; }
+.home-writing { padding-bottom: 3rem; }
+.home-writing > h2 { padding-bottom: 1rem; border-bottom: 1px solid var(--site-border); color: var(--site-muted); font-size: .875rem; font-weight: 500; }
+#start, #articles, #explainers, #about { scroll-margin-top: 6rem; }
+
+@media (max-width: 767px) {
+  .home-page { width: calc(100% - 2.5rem); }
+  .home-intro { grid-template-columns: minmax(0, 1fr); gap: .5rem; padding: 2.5rem 0 2rem; }
+  .home-scene { width: min(100%, 28rem); margin-inline: auto; }
+  .home-intro h1 { max-width: 24rem; font-size: 1.9rem; text-wrap: balance; }
+  .home-intro p { font-size: .875rem; }
+  .home-writing { padding-bottom: 2rem; }
+}

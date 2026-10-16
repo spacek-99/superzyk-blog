@@ -1,29 +1,21 @@
 import Link from "next/link";
 import type { PostSummary } from "@/lib/posts";
+import { formatPostDate, getPostActivityDate, getPostDisplayTitle } from "@/lib/post-display";
 
-const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-
-export default function PostCard({ post, latest = false }: { post: PostSummary; latest?: boolean }) {
+export default function PostCard({ post }: { post: PostSummary }) {
   const titleId = `post-${post.slug}`;
+  const revised = Boolean(post.updatedAt && post.updatedAt !== post.date);
 
   return (
-    <article className="h-full min-w-0">
-      <Link href={`/posts/${post.slug}`} aria-labelledby={titleId} className="post-card group">
-        {latest ? <span className="post-card-label">最新教程</span> : null}
-        <h3 id={titleId} className="post-card-title">{post.title}</h3>
-        <p className="post-card-description">{post.description}</p>
-        {post.tags.length > 0 ? (
-          <ul className="post-card-tags" aria-label="主要主题">
-            {post.tags.slice(0, 3).map((tag) => <li key={tag}>{tag}</li>)}
-          </ul>
-        ) : null}
-        <div className="post-card-footer">
-          <time dateTime={post.date}>{dateFormatter.format(new Date(`${post.date}T00:00:00`))}</time>
-          <span className="post-card-read">阅读全文 <span aria-hidden="true">↗</span></span>
+    <article className="post-row">
+      <div className="post-row-meta">
+        <span>{post.category === "explainer" ? "概念科普" : "动手实践"}</span>
+        <span><time dateTime={getPostActivityDate(post)}>{formatPostDate(getPostActivityDate(post))}</time>{revised ? " · 修订" : ""}</span>
+      </div>
+      <Link href={`/posts/${post.slug}`} aria-labelledby={titleId} className="post-card">
+        <div className="post-card-body">
+          <h3 id={titleId} className="post-card-title">{getPostDisplayTitle(post)}</h3>
+          <p className="post-card-description">{post.description}</p>
         </div>
       </Link>
     </article>

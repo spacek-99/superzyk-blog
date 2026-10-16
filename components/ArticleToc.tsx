@@ -2,75 +2,44 @@
 
 import type { PostHeading } from "@/lib/posts";
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
+import { useArticleReadingPosition } from "./useArticleReadingPosition";
 
 type ArticleTocProps = {
   headings: PostHeading[];
 };
 
 export default function ArticleToc({ headings }: ArticleTocProps) {
-  const [activeId, setActiveId] = useState(headings[0]?.id ?? "");
+  const { activeId, setActiveId } = useArticleReadingPosition(headings);
   const [isOpen, setIsOpen] = useState(false);
   const navId = useId();
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const navigationFrameRef = useRef<number | null>(null);
   const activeHeading = headings.find((heading) => heading.id === activeId);
 
+  useEffect(() => () => {
+    if (navigationFrameRef.current !== null) window.cancelAnimationFrame(navigationFrameRef.current);
+  }, []);
+
   useEffect(() => {
-    if (headings.length === 0) {
-      return;
-    }
+    const nav = navRef.current;
+    if (!nav || !window.matchMedia("(min-width: 1100px)").matches) return;
+    // Leave a person browsing the directory in control until the next chapter change.
+    if (nav.matches(":hover") || nav.contains(document.activeElement)) return;
 
-    const headingElements = headings
-      .map((heading) => document.getElementById(heading.id))
-      .filter((element): element is HTMLElement => Boolean(element));
-
-    if (headingElements.length === 0) {
-      return;
-    }
-
-    let scrollFrame: number | null = null;
-
-    const updateActiveHeading = () => {
-      scrollFrame = null;
-      const activationLine = Math.max(96, window.innerHeight * 0.18);
-      let current = headingElements[0];
-
-      for (const heading of headingElements) {
-        if (heading.getBoundingClientRect().top > activationLine) break;
-        current = heading;
-      }
-
-      if (Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight - 2) {
-        current = headingElements[headingElements.length - 1];
-      }
-
-      setActiveId(current.id);
-    };
-
-    const scheduleUpdate = () => {
-      if (scrollFrame === null) {
-        scrollFrame = window.requestAnimationFrame(updateActiveHeading);
-      }
-    };
-
-    const resizeObserver = new ResizeObserver(scheduleUpdate);
-    const content = headingElements[0].closest(".article-content");
-    if (content) resizeObserver.observe(content);
-
-    scheduleUpdate();
-    window.addEventListener("scroll", scheduleUpdate, { passive: true });
-    window.addEventListener("resize", scheduleUpdate);
-    window.addEventListener("hashchange", scheduleUpdate);
-
-    return () => {
-      if (scrollFrame !== null) window.cancelAnimationFrame(scrollFrame);
-      if (navigationFrameRef.current !== null) window.cancelAnimationFrame(navigationFrameRef.current);
-      resizeObserver.disconnect();
-      window.removeEventListener("scroll", scheduleUpdate);
-      window.removeEventListener("resize", scheduleUpdate);
-      window.removeEventListener("hashchange", scheduleUpdate);
-    };
-  }, [headings]);
+    const activeLink = nav.querySelector<HTMLElement>('[aria-current="location"]');
+    if (!activeLink) return;
+    const bounds = nav.getBoundingClientRect();
+    const linkBounds = activeLink.getBoundingClientRect();
+    const inset = 8;
+    const offset = linkBounds.top < bounds.top + inset
+      ? linkBounds.top - bounds.top - inset
+      : linkBounds.bottom > bounds.bottom - inset
+        ? linkBounds.bottom - bounds.bottom + inset
+        : 0;
+    // Only move the directory's own scroll area, never the document.
+    if (offset) nav.scrollBy({ top: offset, behavior: "instant" });
+  }, [activeId]);
 
   if (headings.length === 0) {
     return null;
@@ -86,23 +55,28 @@ export default function ArticleToc({ headings }: ArticleTocProps) {
 
   return (
     <aside className="article-toc" data-open={isOpen}>
-      <p className="article-toc-title">
-        本页目录
-      </p>
-      <button
-        ref={toggleRef}
-        type="button"
-        className="article-toc-toggle"
-        aria-expanded={isOpen}
-        aria-controls={navId}
-        onClick={() => setIsOpen((open) => !open)}
-        onKeyDown={closeOnEscape}
-      >
-        <span className="article-toc-toggle-label">本页目录</span>
-        <span className="article-toc-current" aria-hidden="true">{activeHeading?.text}</span>
-        <span className="article-toc-toggle-action" aria-hidden="true">{isOpen ? "收起 −" : "展开 +"}</span>
-      </button>
-      <nav id={navId} aria-label="文章目录" className="article-toc-nav">
+      <div className="article-toc-header">
+        <p className="article-toc-title">本页目录</p>
+        <button
+          ref={toggleRef}
+          type="button"
+          className="article-toc-toggle"
+          aria-expanded={isOpen}
+          aria-controls={navId}
+          onClick={() => setIsOpen((open) => !open)}
+          onKeyDown={closeOnEscape}
+        >
+          <span className="article-toc-toggle-label">本页目录</span>
+          <span className="article-toc-current" aria-hidden="true">{activeHeading?.text}</span>
+          <span className="article-toc-toggle-action" aria-hidden="true">
+            {isOpen ? "收起" : "展开"}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d={isOpen ? "m6 15 6-6 6 6" : "m6 9 6 6 6-6"} />
+            </svg>
+          </span>
+        </button>
+      </div>
+      <nav ref={navRef} id={navId} aria-label="文章目录" className="article-toc-nav">
         {headings.map((heading) => {
           const isActive = heading.id === activeId;
 

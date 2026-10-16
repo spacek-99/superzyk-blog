@@ -48,9 +48,11 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
+      data-scroll-behavior="smooth"
       className="dark h-full antialiased"
       suppressHydrationWarning
     >
+      <head><link rel="alternate" type="application/rss+xml" title="superzyk.com RSS" href="/feed.xml" /></head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>{children}</ThemeProvider>
         <Analytics />

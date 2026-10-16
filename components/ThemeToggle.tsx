@@ -2,44 +2,13 @@
 
 import { useTheme } from "./ThemeProvider";
 
-function cn(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
-
 export default function ThemeToggle() {
   const { isDark, mounted, toggleTheme } = useTheme();
-
   return (
-    <button
-      type="button"
-      aria-label={mounted ? (isDark ? "切换到白天模式" : "切换到黑夜模式") : "切换主题"}
-      aria-pressed={isDark}
-      disabled={!mounted}
-      onClick={toggleTheme}
-      className="inline-flex h-11 w-[4.25rem] shrink-0 items-center rounded-full text-[var(--site-ink)] disabled:opacity-70"
-    >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "relative block h-9 w-full rounded-full border transition-colors",
-          isDark ? "border-cyan-300/30 bg-slate-950" : "border-[#dec8ff] bg-[#fff8ef]",
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-1/2 -translate-y-1/2 text-xs",
-            isDark ? "right-2.5" : "left-2.5",
-          )}
-        >
-          {isDark ? "日" : "夜"}
-        </span>
-        <span
-          className={cn(
-            "absolute left-[3px] top-[3px] block h-7 w-7 rounded-full shadow-lg transition-transform duration-300",
-            isDark ? "translate-x-0 bg-cyan-200" : "translate-x-8 bg-[#8b5cf6]",
-          )}
-        />
-      </span>
+    <button type="button" className="theme-toggle" aria-label={mounted ? (isDark ? "切换到白天模式" : "切换到黑夜模式") : "切换主题"} aria-pressed={isDark} disabled={!mounted} onClick={toggleTheme}>
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {isDark ? <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42m0-14.14-1.42 1.42m-11.3 11.3-1.42 1.42" /></> : <path d="M20.8 13.1A9 9 0 0 1 10.9 3.2 9 9 0 1 0 20.8 13.1Z" />}
+      </svg>
     </button>
   );
 }

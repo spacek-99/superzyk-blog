@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import ArticleImageLightbox from "@/components/ArticleImageLightbox";
 import ArticleToc from "@/components/ArticleToc";
 import BackToTop from "@/components/BackToTop";
-import ThemeToggle from "@/components/ThemeToggle";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllPosts, getPostBySlug } from "@/lib/posts";
+import { getPostDisplayTitle } from "@/lib/post-display";
+import { getReadingGuide } from "@/lib/reading-guide";
 import {
   DEFAULT_OG_IMAGE,
   DEFAULT_OG_IMAGE_ALT,
@@ -15,6 +18,7 @@ import {
   SITE_URL,
 } from "@/lib/site";
 import CodeCopyButtons from "./CodeCopyButtons";
+import "./article.css";
 
 type PostPageProps = {
   params: Promise<{
@@ -86,111 +90,83 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound();
   }
 
+  const guide = getReadingGuide(post.slug);
+  const publishedPosts = getAllPosts();
+  const relatedPosts = guide?.related.flatMap((related) => {
+    const nextPost = publishedPosts.find((item) => item.slug === related.slug);
+    return nextPost ? [nextPost] : [];
+  }) ?? [];
+
   return (
-    <main className="min-h-screen overflow-x-clip bg-[var(--site-bg)] text-[var(--site-ink)] transition-colors duration-300">
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_12%_0%,rgba(139,92,246,0.16),transparent_28rem),radial-gradient(circle_at_88%_8%,rgba(34,211,238,0.12),transparent_30rem)]" />
-      <div className="relative z-10 mx-auto w-full max-w-[980px] px-5 py-9 sm:px-8 sm:py-12">
-        <article className="w-full min-w-0">
-          <header className="rounded-[1.4rem] border border-[var(--site-border)] bg-[var(--site-card)] p-5 shadow-2xl shadow-[var(--site-shadow)] backdrop-blur-xl sm:p-7">
-            <div className="flex items-center justify-between gap-4">
-              <Link
-                href="/posts"
-                className="inline-flex rounded-full border border-[var(--site-border)] bg-[var(--site-card)] px-3.5 py-2 text-sm font-medium text-[var(--site-link)] transition hover:border-[var(--site-link)]"
-              >
-                返回文章列表
-              </Link>
-              <ThemeToggle />
-            </div>
-            <div className="mt-7 flex flex-wrap items-center gap-2.5 text-sm text-[var(--site-faint)]">
-              <span className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--site-accent)]">
-                {post.category === "explainer" ? "AI Explainer" : "Technical Guide"}
-              </span>
-              <span aria-hidden="true">/</span>
-              <span>发布于 <time dateTime={post.date}>{formatDate(post.date)}</time></span>
-              {post.updatedAt ? (
-                <span>更新于 <time dateTime={post.updatedAt}>{formatDate(post.updatedAt)}</time></span>
-              ) : null}
-            </div>
-            <h1 className="mt-5 text-3xl font-semibold leading-tight tracking-normal sm:text-[2.7rem]">
-              {post.title}
-            </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--site-muted)] sm:text-lg">
-              {post.description}
-            </p>
-            {post.tags.length > 0 ? (
-              <div className="mt-5 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-[var(--site-border)] bg-[var(--site-card-strong)] px-3 py-1 text-xs font-medium text-[var(--site-muted)]"
-                  >
-                    {tag}
-                  </span>
-                ))}
+    <>
+      <SiteHeader active="posts" />
+      <main id="main-content" tabIndex={-1} className="article-page">
+        <div className="article-shell">
+          <nav className="article-back" aria-label="文章导航">
+            <Link href="/posts">返回文章</Link>
+          </nav>
+
+          <article className="article-layout">
+            <header className="article-heading">
+              <h1>{getPostDisplayTitle(post)}</h1>
+              <p className="article-summary">{post.description}</p>
+              <div className="article-byline">
+                <span>superzyk</span>
+                <span>发布于 <time dateTime={post.date}>{formatDate(post.date)}</time></span>
+                {post.updatedAt ? (
+                  <span>更新于 <time dateTime={post.updatedAt}>{formatDate(post.updatedAt)}</time></span>
+                ) : null}
               </div>
-            ) : null}
-            {post.environment || post.version || post.verifiedAt ? (
-              <dl className="mt-6 grid gap-3 border-t border-[var(--site-border)] pt-5 text-sm leading-6 text-[var(--site-muted)]">
-                {post.environment ? (
-                  <div className="grid gap-0.5 sm:grid-cols-[5rem_1fr] sm:gap-3">
-                    <dt className="font-medium text-[var(--site-ink)]">适用环境</dt>
-                    <dd>{post.environment}</dd>
-                  </div>
-                ) : null}
-                {post.version ? (
-                  <div className="grid gap-0.5 sm:grid-cols-[5rem_1fr] sm:gap-3">
-                    <dt className="font-medium text-[var(--site-ink)]">文中版本</dt>
-                    <dd>{post.version}</dd>
-                  </div>
-                ) : null}
-                {post.verifiedAt ? (
-                  <div className="grid gap-0.5 sm:grid-cols-[5rem_1fr] sm:gap-3">
-                    <dt className="font-medium text-[var(--site-ink)]">最近实测</dt>
-                    <dd><time dateTime={post.verifiedAt}>{formatDate(post.verifiedAt)}</time></dd>
-                  </div>
-                ) : null}
-              </dl>
-            ) : null}
-          </header>
+              {post.environment || post.version || post.verifiedAt ? (
+                <dl className="article-facts">
+                  {post.environment ? <div><dt>适用环境</dt><dd>{post.environment}</dd></div> : null}
+                  {post.version ? <div><dt>文中版本</dt><dd>{post.version}</dd></div> : null}
+                  {post.verifiedAt ? (
+                    <div><dt>最近实测</dt><dd><time dateTime={post.verifiedAt}>{formatDate(post.verifiedAt)}</time></dd></div>
+                  ) : null}
+                </dl>
+              ) : null}
+            </header>
 
-          <ArticleToc key={post.slug} headings={post.headings} />
+            <ArticleToc key={post.slug} headings={post.headings} />
 
-          <div
-            className="article-content mt-8"
-            data-article-content
-            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-          />
-          <ArticleImageLightbox />
-          <CodeCopyButtons />
+            <div className="article-reading-column">
+              <div
+                className="article-content"
+                data-article-content
+                dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+              />
+              <ArticleImageLightbox />
+              <CodeCopyButtons key={post.slug} />
 
-          <footer className="mt-12 border-t border-[var(--site-border)] pt-8 text-center">
-            <BackToTop />
-            <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link
-                href="/posts"
-                className="inline-flex rounded-full border border-[var(--site-border)] bg-[var(--site-card)] px-4 py-2 text-sm font-semibold text-[var(--site-link)] transition hover:border-[var(--site-link)] hover:bg-[var(--site-card-strong)]"
-              >
-                返回文章列表
-              </Link>
-              <Link
-                href="/"
-                className="inline-flex rounded-full bg-[var(--site-button)] px-4 py-2 text-sm font-semibold text-[var(--site-button-text)] transition hover:bg-[var(--site-button-hover)]"
-              >
-                返回首页
-              </Link>
+              <footer className="article-end">
+                {relatedPosts.length > 0 ? (
+                  <section className="article-next" aria-labelledby="next-reading-title">
+                    <h2 id="next-reading-title">相关阅读</h2>
+                    <ul>
+                      {relatedPosts.map((nextPost) => (
+                        <li key={nextPost.slug}>
+                          <Link href={`/posts/${nextPost.slug}`}>
+                            <span className="article-next-title">{getPostDisplayTitle(nextPost)}</span>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+                              <path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+                <div className="article-end-actions">
+                  <Link href="/posts">查看全部文章</Link>
+                  <BackToTop />
+                </div>
+              </footer>
             </div>
-            <p className="mt-5 text-sm text-[var(--site-faint)]">
-              {post.updatedAt ? "内容更新于：" : "发布于："}
-              <time dateTime={post.updatedAt ?? post.date}>{formatDate(post.updatedAt ?? post.date)}</time>
-            </p>
-            <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-[var(--site-muted)]">
-              {post.category === "tutorial"
-                ? "教程修订后会标注内容更新日期，完成实测后会注明实测时间。"
-                : "这篇文章的修订会单独标注内容更新日期。"}
-            </p>
-          </footer>
-        </article>
-      </div>
-    </main>
+          </article>
+        </div>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

@@ -1,0 +1,69 @@
+.campfire-scene {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  isolation: isolate;
+  background: var(--site-bg);
+}
+
+.campfire-scene-art {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* The outer fade is transparent, so the scene also blends into the dark theme. */
+  mask-image: radial-gradient(ellipse 50% 50% at center, #000 55%, rgb(0 0 0 / .98) 66%, rgb(0 0 0 / .86) 76%, rgb(0 0 0 / .55) 86%, rgb(0 0 0 / .15) 96%, transparent 100%);
+}
+
+.campfire-scene-poster,
+.campfire-scene-video,
+.campfire-scene-stars {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.campfire-scene-video { opacity: 0; }
+.campfire-scene-video[data-ready="true"] { opacity: 1; }
+
+.campfire-scene-touch {
+  position: absolute;
+  inset: 7%;
+  z-index: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.campfire-scene-touch:focus-visible {
+  outline: 2px solid var(--site-link);
+  outline-offset: 4px;
+}
+
+.campfire-scene-toggle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--site-bg);
+  color: var(--site-muted);
+  cursor: pointer;
+}
+
+.campfire-scene-toggle:hover {
+  color: var(--site-link);
+  background: var(--site-card);
+}
+
+.campfire-scene-toggle:focus-visible {
+  outline: 2px solid var(--site-link);
+  outline-offset: 2px;
+}
