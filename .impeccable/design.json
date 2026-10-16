@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T17:09:17.625Z",
+  "title": "Design System: superzyk.com",
+  "extensions": {
+    "typographyMeta": {
+      "display": {
+        "displayName": "Homepage declaration",
+        "purpose": "Local Noto Serif SC 500 subset; one introductory line."
+      }
+    },
+    "shadows": [
+      {
+        "name": "reading-surfaces",
+        "value": "none",
+        "purpose": "Flat surfaces, fine rules, and tonal separation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "shared-state",
+        "value": ".18s ease",
+        "purpose": "Theme toggle and article-title state changes."
+      },
+      {
+        "name": "category-state",
+        "value": "150ms ease",
+        "purpose": "Category text color changes."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "article-mobile-max",
+        "value": "599px"
+      },
+      {
+        "name": "archive-mobile-max",
+        "value": "600px"
+      },
+      {
+        "name": "shared-mobile-max",
+        "value": "767px"
+      },
+      {
+        "name": "article-sidebar-min",
+        "value": "1100px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary navigation",
+      "kind": "nav",
+      "description": "The sole navigation link beside the home-linked text brand and theme toggle.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"主导航\"><a href=\"/posts\" aria-current=\"page\">文章</a></nav>",
+      "css": ".ds-nav{display:flex;gap:1.6rem;font-family:var(--font-geist-sans);}.ds-nav a{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:.4rem .1rem;color:var(--site-muted);font-size:.875rem;text-decoration:none;}.ds-nav a[aria-current=\"page\"],.ds-nav a:hover{color:var(--site-link);}.ds-nav a[aria-current=\"page\"]::after{content:\"\";position:absolute;bottom:3px;left:.1rem;right:.1rem;height:2px;background:var(--site-link);}.ds-nav a:focus-visible{outline:2px solid var(--site-link);outline-offset:5px;}@media(max-width:767px){.ds-nav{gap:.8rem;}.ds-nav a{font-size:.8rem;}}"
+    },
+    {
+      "name": "Theme toggle",
+      "kind": "button",
+      "refersTo": "theme-toggle",
+      "description": "Visual snapshot of the dark-theme switch; the app supplies state and persistence.",
+      "html": "<button type=\"button\" class=\"ds-theme-toggle\" aria-label=\"切换到白天模式\" aria-pressed=\"true\"><svg viewBox=\"0 0 24 24\" width=\"19\" height=\"19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42m0-14.14-1.42 1.42m-11.3 11.3-1.42 1.42\"/></svg></button>",
+      "css": ".ds-theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--site-muted);cursor:pointer;transition:background .18s ease,color .18s ease;}.ds-theme-toggle:hover{background:var(--site-card);color:var(--site-link);}.ds-theme-toggle:focus-visible{outline:2px solid var(--site-link);outline-offset:5px;}@media(prefers-reduced-motion:reduce){.ds-theme-toggle{transition:none;}}"
+    },
+    {
+      "name": "Article row",
+      "kind": "custom",
+      "description": "Category/date, title, and summary. Generic sample content introduces no publication claims.",
+      "html": "<article class=\"ds-post-row\"><div class=\"ds-post-meta\"><span>动手实践</span><span>发布日期</span></div><a class=\"ds-post-card\" href=\"/posts\"><h3 class=\"ds-post-title\">文章标题</h3><p class=\"ds-post-description\">文章摘要。</p></a></article>",
+      "css": ".ds-post-row{padding:1.65rem 0;border-bottom:1px solid var(--site-border);min-width:0;font-family:var(--font-geist-sans);}.ds-post-meta{display:flex;flex-wrap:wrap;gap:.5rem 1rem;margin-bottom:.6rem;font-size:.73rem;color:var(--site-faint);font-variant-numeric:tabular-nums;}.ds-post-meta>span:first-child{color:var(--site-link);}.ds-post-card{display:block;text-decoration:none;}.ds-post-title{margin:0;color:var(--site-ink);font-size:1.125rem;line-height:1.6;font-weight:600;text-wrap:pretty;overflow-wrap:anywhere;transition:color .18s ease;}.ds-post-description{margin:.55rem 0 0;max-width:52rem;color:var(--site-muted);font-size:.9rem;line-height:1.85;overflow-wrap:anywhere;}.ds-post-card:hover .ds-post-title{color:var(--site-link);}.ds-post-card:focus-visible{outline:2px solid var(--site-link);outline-offset:5px;}@media(max-width:767px){.ds-post-title{font-size:1.05rem;}.ds-post-description{font-size:.85rem;}}@media(prefers-reduced-motion:reduce){.ds-post-title{transition:none;}}"
+    },
+    {
+      "name": "Archive search",
+      "kind": "input",
+      "refersTo": "archive-search",
+      "description": "Compact search and clear-action state; application logic supplies filtering and focus restoration.",
+      "html": "<div class=\"ds-search\" role=\"search\" aria-label=\"搜索文章\"><label for=\"ds-search-input\" class=\"ds-sr-only\">搜索文章</label><div class=\"ds-search-field\"><input id=\"ds-search-input\" type=\"search\" value=\"MCP\" placeholder=\"搜索文章\"/><button type=\"button\">清空</button></div></div>",
+      "css": ".ds-search{max-width:30rem;margin-bottom:.75rem;font-family:var(--font-geist-sans);}.ds-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;}.ds-search-field{display:flex;align-items:center;gap:.5rem;min-height:2.75rem;padding-inline:.875rem .375rem;border:1px solid var(--site-border);border-radius:.25rem;background:var(--site-card);}.ds-search-field:focus-within{outline:2px solid var(--site-link);outline-offset:3px;}.ds-search-field input{flex:1;min-width:0;width:100%;padding:.625rem 0;border:0;outline:none;color:var(--site-ink);background:transparent;font-family:var(--font-geist-sans);font-size:1rem;line-height:1.5;caret-color:var(--site-link);}.ds-search-field input::placeholder{color:var(--site-muted);opacity:1;}.ds-search-field input::-webkit-search-cancel-button{display:none;}.ds-search-field button{flex-shrink:0;min-height:2.75rem;padding:0 .75rem;border:0;border-radius:.25rem;color:var(--site-link);background:transparent;font-family:var(--font-geist-sans);font-size:.875rem;cursor:pointer;}.ds-search-field button:hover{background:var(--site-card-strong);}.ds-search-field button:focus-visible{outline:2px solid var(--site-link);outline-offset:4px;}"
+    },
+    {
+      "name": "Archive categories",
+      "kind": "button",
+      "refersTo": "archive-filter-selected",
+      "description": "Flat category selection with an accent underline; one result count appears separately in the app.",
+      "html": "<div class=\"ds-filters\" role=\"group\" aria-label=\"按文章类型筛选\"><button type=\"button\" aria-pressed=\"true\">全部</button><button type=\"button\" aria-pressed=\"false\">概念科普</button><button type=\"button\" aria-pressed=\"false\">动手实践</button></div>",
+      "css": ".ds-filters{display:flex;align-items:center;gap:.25rem;margin-left:-.5rem;}.ds-filters button{display:inline-flex;align-items:center;justify-content:center;min-height:2.75rem;padding:.5rem;border:0;color:var(--site-muted);background:transparent;font-family:var(--font-geist-sans);font-size:.9375rem;font-weight:550;cursor:pointer;text-underline-offset:.5em;transition:color 150ms ease;}.ds-filters button:hover,.ds-filters button[aria-pressed=\"true\"]{color:var(--site-link);}.ds-filters button[aria-pressed=\"true\"]{text-decoration:underline;text-decoration-thickness:2px;}.ds-filters button:focus-visible{outline:2px solid var(--site-link);outline-offset:4px;}@media(prefers-reduced-motion:reduce){.ds-filters button{transition:none;}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "A quiet personal reading space",
+    "overview": "A quiet personal reading space with warm-white or graphite surfaces and a cyan/teal accent. The latest approved direction removes repetition: a short introduction leads directly to one article list. Typography, spacing, and fine rules provide hierarchy.",
+    "keyCharacteristics": [
+      "One article list; each article appears once on the homepage.",
+      "Compact navigation and contact footer.",
+      "Flat surfaces and a restrained accent."
+    ],
+    "rules": [],
+    "dos": [
+      "Do retain visible keyboard focus, saved theme preferences, and reduced-motion behavior.",
+      "Do keep publication, revision, and verification facts distinct."
+    ],
+    "donts": [
+      "Don't duplicate articles across homepage sections or repeat the author introduction.",
+      "Don't reintroduce removed promotional blocks, reading-route buttons, tag clouds, reading guides, or progress displays.",
+      "Don't extend the title-font subset to new copy without checking glyph coverage."
+    ]
+  }
+}
